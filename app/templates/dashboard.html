@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Dampak — FoodLoop ID{% endblock %}
+{% from "components/kpi_card.html" import kpi_card %}
+{% from "components/chart_card.html" import chart_card %}
+{% from "components/data_table.html" import data_table %}
+
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">Dashboard Dampak</h1>
+    <p class="mt-1 text-sm text-ink-muted">Ringkasan pangan terselamatkan, kontribusi kategori, dan sebaran wilayah.</p>
+  </div>
+  <div class="flex flex-wrap gap-2" role="group" aria-label="Rentang waktu">
+    <button type="button" class="chip" data-range aria-pressed="false" onclick="selectRange(this)">7 hari</button>
+    <button type="button" class="chip chip-active" data-range aria-pressed="true" onclick="selectRange(this)">30 hari</button>
+    <button type="button" class="chip" data-range aria-pressed="false" onclick="selectRange(this)">Tahun ini</button>
+  </div>
+</div>
+
+<section aria-label="KPI utama" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  {% for kpi in kpis %}
+  {{ kpi_card(kpi) }}
+  {% endfor %}
+</section>
+
+<section aria-label="Grafik dampak" class="mt-6 grid gap-5 md:grid-cols-2">
+  <div class="md:col-span-2">
+    {{ chart_card('Tren harian pangan terselamatkan', 'chart-trend', 'kg per hari, 14 hari terakhir') }}
+  </div>
+  {{ chart_card('Kontribusi per kategori', 'chart-kategori', 'kg terselamatkan per jenis pangan') }}
+  {{ chart_card('Sebaran per wilayah', 'chart-wilayah', 'kg terselamatkan per kota') }}
+</section>
+
+<section aria-label="Klaim terbaru" class="mt-8">
+  <div class="mb-3 flex items-center justify-between gap-3">
+    <div>
+      <h2 class="text-base font-semibold text-ink">Klaim terbaru</h2>
+      <p class="text-sm text-ink-muted">Aktivitas klaim dari penerima manfaat.</p>
+    </div>
+    <a href="/surplus" class="text-sm font-semibold text-primary-700 hover:underline">Lihat papan surplus</a>
+  </div>
+  {% set claim_columns = [
+    {'key': 'receiver', 'label': 'Penerima'},
+    {'key': 'listing', 'label': 'Surplus'},
+    {'key': 'city', 'label': 'Kota'},
+    {'key': 'status', 'label': 'Status', 'badge': True},
+    {'key': 'time', 'label': 'Waktu'}
+  ] %}
+  {{ data_table(claim_columns, claims, 'Belum ada klaim', 'Klaim terbaru dari penerima manfaat akan muncul di sini.', 'Buka papan surplus', '/surplus') }}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    var cssVar = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+    Chart.defaults.font.family = "Poppins, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = cssVar('--color-ink-muted');
+    var gridColor = cssVar('--color-border');
+
+    new Chart(document.getElementById('chart-trend'), {
+      type: 'line',
+      data: {
+        labels: {{ trend['labels'] | tojson }},
+        datasets: [{
+          label: 'kg terselamatkan',
+          data: {{ trend['values'] | tojson }},
+          borderColor: cssVar('--color-primary-600'),
+          backgroundColor: cssVar('--color-primary-400') + '33',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointBackgroundColor: cssVar('--color-primary-600')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 7 }, border: { display: false } },
+          y: {
+            beginAtZero: true,
+            grid: { color: gridColor },
+            border: { display: false },
+            ticks: { callback: function (value) { return value + ' kg'; } }
+          }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chart-kategori'), {
+      type: 'doughnut',
+      data: {
+        labels: {{ kategori['labels'] | tojson }},
+        datasets: [{
+          data: {{ kategori['values'] | tojson }},
+          backgroundColor: [
+            cssVar('--color-primary-600'),
+            cssVar('--color-primary-400'),
+            cssVar('--color-success'),
+            cssVar('--color-warning'),
+            cssVar('--color-danger'),
+            cssVar('--color-ink-muted')
+          ],
+          borderWidth: 0,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14 } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chart-wilayah'), {
+      type: 'bar',
+      data: {
+        labels: {{ wilayah['labels'] | tojson }},
+        datasets: [{
+          label: 'kg',
+          data: {{ wilayah['values'] | tojson }},
+          backgroundColor: cssVar('--color-primary-400'),
+          hoverBackgroundColor: cssVar('--color-primary-600'),
+          borderRadius: 8,
+          barThickness: 16
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, grid: { color: gridColor }, border: { display: false }, ticks: { callback: function (value) { return value + ' kg'; } } },
+          y: { grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+
+    window.selectRange = function (button) {
+      document.querySelectorAll('[data-range]').forEach(function (item) {
+        item.classList.remove('chip-active');
+        item.setAttribute('aria-pressed', 'false');
+      });
+      button.classList.add('chip-active');
+      button.setAttribute('aria-pressed', 'true');
+      window.showToast('Rentang ' + button.textContent.trim() + ' dipilih (demo UI, data statis)', 'info');
+    };
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Laporan Dampak — FoodLoop ID</title>
+<style>
+{{ tokens_css }}
+
+@page {
+  size: A4;
+  margin: 14mm 14mm 20mm;
+  @bottom-left {
+    content: "FoodLoop ID · Laporan Dampak";
+    font-size: 8pt;
+    color: var(--color-ink-muted, #475569);
+  }
+  @bottom-right {
+    content: "Dicetak pada " string(printed-at) " · Hal. " counter(page) " dari " counter(pages);
+    font-size: 8pt;
+    color: var(--color-ink-muted, #475569);
+  }
+}
+
+html, body {
+  background: var(--color-surface, #ffffff);
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.print-meta-label {
+  font-size: 8pt;
+  color: var(--color-ink-muted, #475569);
+}
+
+.print-meta {
+  string-set: printed-at content();
+}
+
+.kop {
+  display: table;
+  width: 100%;
+  border-bottom: 2px solid var(--color-primary-400, #38bdf8);
+  padding-bottom: 8px;
+}
+
+.kop-brand { display: table-cell; vertical-align: top; width: 58%; }
+.kop-info { display: table-cell; vertical-align: top; text-align: right; }
+
+.brand-row { display: table; width: 100%; }
+
+.brand-mark {
+  display: table-cell;
+  vertical-align: middle;
+  width: 34px;
+}
+
+.brand-text { display: table-cell; vertical-align: middle; padding-left: 8px; }
+
+.brand-name {
+  font-size: 16pt;
+  font-weight: 700;
+  color: var(--color-primary-700, #0369a1);
+}
+
+.brand-tagline {
+  font-size: 8.5pt;
+  color: var(--color-ink-muted, #475569);
+}
+
+.kop-title {
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.kop-period {
+  font-size: 9pt;
+  color: var(--color-ink-muted, #475569);
+}
+
+.meta {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: var(--color-bg, #f0f9ff);
+  border: 1px solid var(--color-border, #e0f2fe);
+  border-radius: 8px;
+}
+
+.meta-row { display: table; width: 100%; }
+
+.meta-cell {
+  display: table-cell;
+  width: 25%;
+  font-size: 8.5pt;
+  color: var(--color-ink-muted, #475569);
+}
+
+.meta-cell strong { color: var(--color-ink); }
+
+h2 {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 16px 0 6px;
+}
+
+.kpi-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 6px 0;
+  margin: 0 -6px;
+}
+
+.kpi-cell {
+  width: 25%;
+  border: 1px solid var(--color-border, #e0f2fe);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--color-surface, #ffffff);
+}
+
+.kpi-label {
+  font-size: 8pt;
+  color: var(--color-ink-muted, #475569);
+}
+
+.kpi-value {
+  font-size: 14pt;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.kpi-unit {
+  font-size: 8.5pt;
+  color: var(--color-ink-muted, #475569);
+}
+
+.extra-metrics {
+  font-size: 8.5pt;
+  color: var(--color-ink-muted, #475569);
+  margin-top: 2px;
+}
+
+.extra-metrics strong { color: var(--color-ink); }
+
+.chart-box {
+  border: 1px solid var(--color-border, #e0f2fe);
+  border-radius: 12px;
+  padding: 8px;
+  text-align: center;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+}
+
+table.data thead { display: table-header-group; }
+
+table.data th {
+  background: var(--color-primary-soft, #e0f2fe);
+  color: var(--color-ink);
+  text-align: left;
+  font-weight: 600;
+  padding: 5px 6px;
+  border-bottom: 1.5px solid var(--color-primary-400, #38bdf8);
+}
+
+table.data td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--color-border, #e0f2fe);
+}
+
+table.data tbody tr:nth-child(even) td {
+  background: var(--color-bg, #f0f9ff);
+}
+
+.num { text-align: right; white-space: nowrap; }
+
+.empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--color-ink-muted, #475569);
+  font-size: 8.5pt;
+  border: 1px dashed var(--color-border, #e0f2fe);
+  border-radius: 8px;
+}
+
+.note {
+  margin-top: 14px;
+  font-size: 8pt;
+  color: var(--color-ink-muted, #475569);
+  border-top: 1px solid var(--color-border, #e0f2fe);
+  padding-top: 6px;
+}
+</style>
+</head>
+<body>
+
+<header class="kop">
+  <div class="kop-brand">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none"
+             stroke="#0369a1" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="0" y="0" width="30" height="30" rx="9" fill="#0369a1" stroke="none"/>
+          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" stroke="#ffffff"/>
+          <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" stroke="#ffffff"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">FoodLoop ID</div>
+        <div class="brand-tagline">Platform berbagi pangan surplus Indonesia</div>
+      </div>
+    </div>
+  </div>
+  <div class="kop-info">
+    <div class="kop-title">Laporan Dampak Pangan</div>
+    <div class="kop-period">Periode {{ period_label }}</div>
+    <div class="print-meta-label">Dicetak pada <span class="print-meta">{{ generated_label }}</span></div>
+  </div>
+</header>
+
+<section class="meta">
+  <div class="meta-row">
+    <div class="meta-cell">Periode<br><strong>{{ period_label }}</strong></div>
+    <div class="meta-cell">Cakupan data<br><strong>{{ scope_label }}</strong></div>
+    <div class="meta-cell">Wilayah<br><strong>{{ city_label }}</strong></div>
+    <div class="meta-cell">Jumlah transaksi<br><strong>{{ daily | length }} hari</strong></div>
+  </div>
+</section>
+
+<section>
+  <h2>Ringkasan Dampak</h2>
+  <table class="kpi-table">
+    <tr>
+      {% for kpi in kpis %}
+      <td class="kpi-cell">
+        <div class="kpi-label">{{ kpi.label }}</div>
+        <div class="kpi-value">{{ kpi.display }}</div>
+        {% if kpi.unit and 'Rp' not in kpi.display %}
+        <div class="kpi-unit">{{ kpi.unit }}</div>
+        {% endif %}
+      </td>
+      {% endfor %}
+    </tr>
+  </table>
+  <p class="extra-metrics">
+    {% for metric in extra_metrics %}<strong>{{ metric.label }}:</strong> {{ metric.display }} &nbsp;·&nbsp; {% endfor %}
+  </p>
+</section>
+
+<section>
+  <h2>Tren Harian (kg)</h2>
+  <div class="chart-box">
+    {% if chart_svg %}
+      {{ chart_svg | safe }}
+    {% else %}
+      <div class="empty">Belum ada data harian pada rentang ini.</div>
+    {% endif %}
+  </div>
+</section>
+
+<section>
+  <h2>Rekap Harian</h2>
+  {% if daily %}
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th class="num">Terselamatkan (kg)</th>
+        <th class="num">Terbuang (kg)</th>
+        <th class="num">Klaim</th>
+        <th class="num">Nilai dampak</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in daily %}
+      <tr>
+        <td>{{ row.tanggal }}</td>
+        <td class="num">{{ "%.2f" | format(row.saved_kg) }}</td>
+        <td class="num">{{ "%.2f" | format(row.waste_kg) }}</td>
+        <td class="num">{{ row.claim_count }}</td>
+        <td class="num">Rp {{ "{:,.0f}".format(row.rupiah_value) | replace(",", ".") }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">Belum ada rekap harian pada rentang ini.</div>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Kontribusi per Kategori</h2>
+  {% if categories %}
+  <table class="data">
+    <thead>
+      <tr>
+        <th>Kategori</th>
+        <th class="num">Terselamatkan (kg)</th>
+        <th class="num">Terbuang (kg)</th>
+        <th class="num">Kontribusi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in categories %}
+      <tr>
+        <td>{{ row.kategori }}</td>
+        <td class="num">{{ "%.2f" | format(row.saved_kg) }}</td>
+        <td class="num">{{ "%.2f" | format(row.waste_kg) }}</td>
+        <td class="num">{{ "%.1f" | format(row.contribution_pct) }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">Belum ada data kategori pada rentang ini.</div>
+  {% endif %}
+</section>
+
+<p class="note">
+  Metodologi: kg terselamatkan = total surplus berstatus “diambil”; nilai dampak rupiah = kg × faktor harga per kategori;
+  porsi makan = kg ÷ 0,4; CO₂e dicegah = kg × faktor emisi per kategori (tabel faktor dampak).
+  Data dibatasi pada cakupan organisasi di atas. Laporan ini dibuat otomatis oleh FoodLoop ID.
+</p>
+
+</body>
+</html>

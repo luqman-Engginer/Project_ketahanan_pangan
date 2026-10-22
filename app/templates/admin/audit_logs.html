@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Audit Log — FoodLoop ID{% endblock %}
+{% from "components/data_table.html" import data_table %}
+
+{% block content %}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">Audit Log</h1>
+    <p class="mt-1 text-sm text-ink-muted">Jejak tindakan administratif terbaru (verifikasi &amp; perubahan faktor dampak).</p>
+  </div>
+  <a href="{{ url_for('admin.index') }}" class="btn btn-secondary">Kembali ke Admin</a>
+</div>
+
+{% set log_columns = [
+  {'key': 'created_at', 'label': 'Waktu'},
+  {'key': 'user', 'label': 'Pengguna'},
+  {'key': 'action', 'label': 'Aksi'},
+  {'key': 'entity', 'label': 'Entitas'},
+  {'key': 'entity_id', 'label': 'ID'}
+] %}
+{{ data_table(log_columns, logs, 'Belum ada aktivitas', 'Tindakan administratif akan tercatat di sini.', '', '#') }}
+{% endblock %}

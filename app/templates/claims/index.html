@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Klaim — FoodLoop ID{% endblock %}
+{% from "components/data_table.html" import data_table %}
+{% from "components/status_badge.html" import status_badge %}
+{% from "components/empty_state.html" import empty_state %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-ink">Klaim Surplus</h1>
+  <p class="mt-1 text-sm text-ink-muted">
+    {% if role == 'donor' %}Klaim masuk untuk surplus organisasi Anda. Setujui, tandai diambil, atau batalkan.
+    {% elif role == 'admin' %}Semua klaim lintas organisasi.
+    {% else %}Klaim yang Anda ajukan ke donor.{% endif %}
+  </p>
+</div>
+
+{% if claims %}
+<div class="card overflow-x-auto">
+  <table class="w-full min-w-[720px] text-left text-sm">
+    <thead>
+      <tr class="border-b border-line bg-bg">
+        <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Surplus</th>
+        <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Penerima</th>
+        <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Kota</th>
+        <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Status</th>
+        <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Waktu</th>
+        <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-ink-muted">Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for claim in claims %}
+      <tr class="border-b border-line transition last:border-0 hover:bg-bg">
+        <td class="px-4 py-3">
+          <a href="{{ url_for('surplus.surplus_detail', listing_id=claim.listing_id) }}" class="font-medium text-primary-700 hover:underline">{{ claim.listing }}</a>
+        </td>
+        <td class="px-4 py-3 text-ink">{{ claim.receiver }}</td>
+        <td class="px-4 py-3 text-ink">{{ claim.city }}</td>
+        <td class="px-4 py-3">{{ status_badge(claim.status) }}</td>
+        <td class="px-4 py-3 text-ink-muted">{{ claim.claimed_at }}</td>
+        <td class="px-4 py-3">
+          <div class="flex flex-wrap items-center justify-end gap-2">
+            {% if role in ['donor', 'admin'] and claim.status == 'pending' %}
+            <form method="post" action="{{ url_for('claims.update_status', claim_id=claim.id) }}" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="status" value="approved">
+              <button type="submit" class="btn btn-primary btn-sm">Setujui</button>
+            </form>
+            {% endif %}
+            {% if role in ['donor', 'admin'] and claim.status == 'approved' %}
+            <form method="post" action="{{ url_for('claims.update_status', claim_id=claim.id) }}" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="status" value="picked_up">
+              <button type="submit" class="btn btn-primary btn-sm">Tandai diambil</button>
+            </form>
+            {% endif %}
+            {% if claim.status in ['pending', 'approved'] %}
+            <form method="post" action="{{ url_for('claims.update_status', claim_id=claim.id) }}" class="inline"
+                  onsubmit="return confirm('Batalkan klaim ini?');">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="status" value="cancelled">
+              <button type="submit" class="btn btn-ghost btn-sm text-danger-ink">Batalkan</button>
+            </form>
+            {% else %}
+            <span class="text-xs text-ink-muted">Selesai</span>
+            {% endif %}
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+{{ empty_state('Belum ada klaim', 'Klaim atas surplus akan tampil di sini beserta tindakan lanjutannya.', 'Buka papan surplus', '/surplus') }}
+{% endif %}
+{% endblock %}

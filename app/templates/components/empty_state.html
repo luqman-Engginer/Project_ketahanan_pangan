@@ -1,0 +1,12 @@
+{% macro empty_state(title, message, action_label='', action_url='#') %}
+<div class="rounded-card border border-dashed border-line bg-surface px-6 py-12 text-center">
+  <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary-soft text-primary-700">
+    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+  </span>
+  <h3 class="mt-4 text-base font-semibold text-ink">{{ title }}</h3>
+  <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">{{ message }}</p>
+  {% if action_label %}
+  <a href="{{ action_url }}" class="btn btn-primary mt-5">{{ action_label }}</a>
+  {% endif %}
+</div>
+{% endmacro %}

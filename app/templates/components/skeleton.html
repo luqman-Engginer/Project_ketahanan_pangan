@@ -1,0 +1,11 @@
+{% macro skeleton(lines=3, chart=False) %}
+{% if chart %}
+<div class="h-64 w-full animate-pulse rounded-2xl bg-bg" aria-hidden="true"></div>
+{% else %}
+<div class="space-y-3" aria-hidden="true">
+  {% for _ in range(lines) %}
+  <div class="h-4 animate-pulse rounded-full bg-bg {{ 'w-1/2' if loop.last else 'w-full' }}"></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endmacro %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Dampak Publik — FoodLoop ID{% endblock %}
+{% from "components/kpi_card.html" import kpi_card %}
+{% from "components/chart_card.html" import chart_card %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-ink">Dampak Ketahanan Pangan Publik</h1>
+  <p class="mt-1 text-sm text-ink-muted">Angka agregat terbuka dari seluruh organisasi mitra FoodLoop ID — tanpa perlu masuk.</p>
+</div>
+
+<section aria-label="KPI dampak publik" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  {% for kpi in kpis %}
+  {{ kpi_card(kpi) }}
+  {% endfor %}
+</section>
+
+<section aria-label="Grafik dampak publik" class="mt-6 grid gap-5 md:grid-cols-2">
+  <div class="md:col-span-2">
+    {{ chart_card('Tren pangan terselamatkan', 'chart-trend-bulanan', 'kg per bulan, 6 bulan terakhir') }}
+  </div>
+  {{ chart_card('Rasio surplus diambil vs kedaluwarsa', 'chart-rasio', 'persentase dari total pencatatan') }}
+  {{ chart_card('Sebaran per wilayah', 'chart-wilayah', 'kg terselamatkan per kota (semua waktu)') }}
+</section>
+
+<div class="mt-6 flex items-start gap-2 rounded-card border border-line bg-primary-soft px-4 py-3 text-sm text-ink">
+  <span class="font-semibold">Open data:</span>
+  <span>Angka ini juga tersedia sebagai JSON di <a href="/publik/api/impact" class="font-semibold text-primary-700 hover:underline">/publik/api/impact</a>.</span>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  (function () {
+    var cssVar = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+    Chart.defaults.font.family = "Poppins, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = cssVar('--color-ink-muted');
+    var gridColor = cssVar('--color-border');
+
+    new Chart(document.getElementById('chart-trend-bulanan'), {
+      type: 'line',
+      data: {
+        labels: {{ trend['labels'] | tojson }},
+        datasets: [{
+          label: 'kg terselamatkan',
+          data: {{ trend['values'] | tojson }},
+          borderColor: cssVar('--color-primary-600'),
+          backgroundColor: cssVar('--color-primary-400') + '33',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointBackgroundColor: cssVar('--color-primary-600')
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, border: { display: false } },
+          y: {
+            beginAtZero: true,
+            grid: { color: gridColor },
+            border: { display: false },
+            ticks: { callback: function (value) { return (value / 1000) + ' rb kg'; } }
+          }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chart-rasio'), {
+      type: 'doughnut',
+      data: {
+        labels: {{ ratio['labels'] | tojson }},
+        datasets: [{
+          data: {{ ratio['values'] | tojson }},
+          backgroundColor: [cssVar('--color-primary-600'), cssVar('--color-danger')],
+          borderWidth: 0,
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '68%',
+        plugins: {
+          legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14 } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chart-wilayah'), {
+      type: 'bar',
+      data: {
+        labels: {{ wilayah['labels'] | tojson }},
+        datasets: [{
+          label: 'kg',
+          data: {{ wilayah['values'] | tojson }},
+          backgroundColor: cssVar('--color-primary-400'),
+          hoverBackgroundColor: cssVar('--color-primary-600'),
+          borderRadius: 8,
+          barThickness: 16
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { beginAtZero: true, grid: { color: gridColor }, border: { display: false }, ticks: { callback: function (value) { return (value / 1000) + ' rb'; } } },
+          y: { grid: { display: false }, border: { display: false } }
+        }
+      }
+    });
+  })();
+</script>
+{% endblock %}

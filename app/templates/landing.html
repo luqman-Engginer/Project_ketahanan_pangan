@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}FoodLoop ID — Kurangi Limbah Pangan, Sebar Kelebihan{% endblock %}
+
+{% macro feature_icon(name) %}
+{% if name == 'board' %}
+<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+{% elif name == 'clock' %}
+<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+{% elif name == 'chart' %}
+<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V6"/><path d="M8 17v-4"/></svg>
+{% else %}
+<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+{% endif %}
+{% endmacro %}
+
+{% block content %}
+<section class="grid items-center gap-10 py-8 lg:grid-cols-2 lg:py-14">
+  <div>
+    <span class="chip">Platform pangan surplus Indonesia</span>
+    <h1 class="mt-5 text-4xl font-bold leading-tight sm:text-5xl">
+      Kelebihan pangan,<br>
+      <span class="text-primary-700">sampai ke yang butuh</span>
+    </h1>
+    <p class="mt-4 max-w-lg text-base leading-relaxed text-ink-muted sm:text-lg">
+      FoodLoop ID menghubungkan restoran, toko, dan kebun yang punya stok berlebih
+      dengan komunitas penerima di kota yang sama — cepat, tercatat, dan terukur dampaknya.
+    </p>
+    <div class="mt-7 flex flex-wrap gap-3">
+      <a href="/surplus" class="btn btn-primary">Lihat Papan Surplus</a>
+      <a href="/register" class="btn btn-secondary">Daftar Gratis</a>
+    </div>
+    <dl class="mt-9 grid grid-cols-3 gap-4 border-t border-line pt-6">
+      {% for stat in stats %}
+      <div>
+        <dd class="text-2xl font-bold text-ink">{{ stat.value }}</dd>
+        <dt class="mt-1 text-xs leading-snug text-ink-muted sm:text-sm">{{ stat.label }}</dt>
+      </div>
+      {% endfor %}
+    </dl>
+  </div>
+
+  <div class="relative mx-auto w-full max-w-md">
+    <div class="rounded-card tone-1 p-6 shadow-card sm:min-h-[340px]">
+      <div class="space-y-3">
+        <div class="rounded-2xl bg-surface p-4 shadow-card">
+          <p class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Papan surplus</p>
+          <ul class="mt-3 space-y-2 text-sm">
+            <li class="flex items-center justify-between gap-3">
+              <span class="truncate font-medium text-ink">Sayur mayur sisa pasar</span>
+              <span class="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success-ink">Tersedia</span>
+            </li>
+            <li class="flex items-center justify-between gap-3">
+              <span class="truncate font-medium text-ink">Roti panggang hari ini</span>
+              <span class="shrink-0 rounded-full bg-primary-soft px-2 py-0.5 text-[11px] font-semibold text-primary-700">Diklaim</span>
+            </li>
+            <li class="flex items-center justify-between gap-3">
+              <span class="truncate font-medium text-ink">Pisang ambil matang 5 kg</span>
+              <span class="shrink-0 rounded-full bg-success-soft px-2 py-0.5 text-[11px] font-semibold text-success-ink">Tersedia</span>
+            </li>
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-surface p-4 shadow-card">
+          <p class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Dampak bulan ini</p>
+          <p class="mt-2 text-3xl font-bold text-ink">12.480 <span class="text-sm font-semibold text-ink-muted">kg</span></p>
+          <p class="mt-1 text-sm font-medium text-success-ink">▲ +18,2% vs bulan lalu</p>
+        </div>
+      </div>
+    </div>
+    <div class="absolute -bottom-5 left-4 hidden rounded-2xl border border-line bg-surface px-4 py-3 shadow-card sm:block">
+      <p class="text-xs text-ink-muted">Klaim berhasil diproses</p>
+      <p class="mt-0.5 text-sm font-semibold text-ink">3.264 paket dibagikan</p>
+    </div>
+  </div>
+</section>
+
+<section class="py-10">
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 class="text-2xl font-bold sm:text-3xl">Kenapa FoodLoop ID?</h2>
+    <p class="mt-2 text-sm text-ink-muted sm:text-base">Empat pilar yang membuat distribusi pangan surplus lebih rapi dan terukur.</p>
+  </div>
+  <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {% for feature in features %}
+    <article class="card p-5">
+      <span class="grid h-11 w-11 place-items-center rounded-2xl bg-primary-soft text-primary-700">{{ feature_icon(feature.icon) }}</span>
+      <h3 class="mt-4 text-base font-semibold text-ink">{{ feature.title }}</h3>
+      <p class="mt-1.5 text-sm leading-relaxed text-ink-muted">{{ feature.body }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="py-10">
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 class="text-2xl font-bold sm:text-3xl">Cara kerja</h2>
+    <p class="mt-2 text-sm text-ink-muted sm:text-base">Tiga langkah dari pendaftaran sampai dampak tercatat.</p>
+  </div>
+  <div class="mt-8 grid gap-5 md:grid-cols-3">
+    {% for step in steps %}
+    <article class="card p-6">
+      <span class="grid h-10 w-10 place-items-center rounded-full bg-primary-soft text-sm font-bold text-primary-700">{{ step.number }}</span>
+      <h3 class="mt-4 text-base font-semibold text-ink">{{ step.title }}</h3>
+      <p class="mt-1.5 text-sm leading-relaxed text-ink-muted">{{ step.body }}</p>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="py-10 pb-14">
+  <div class="rounded-card bg-primary-700 px-6 py-10 text-center text-white sm:px-10">
+    <h2 class="text-2xl font-bold sm:text-3xl">Siap sebar atau terima pangan surplus?</h2>
+    <p class="mx-auto mt-2 max-w-xl text-sm text-white sm:text-base">
+      Bergabung bersama 1.240 organisasi di 52 kota. Gratis untuk komunitas dan penerima manfaat.
+    </p>
+    <div class="mt-6 flex flex-wrap justify-center gap-3">
+      <a href="/register" class="btn bg-surface text-primary-700 hover:bg-bg">Daftar Sekarang</a>
+      <a href="/login" class="btn border border-white/50 text-white hover:bg-white hover:text-primary-700">Masuk</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

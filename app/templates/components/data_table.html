@@ -1,0 +1,41 @@
+{% from "components/status_badge.html" import status_badge %}
+{% from "components/empty_state.html" import empty_state %}
+
+{% macro data_table(columns, rows, empty_title='Belum ada data', empty_message='Belum ada data untuk ditampilkan.', empty_action_label='', empty_action_url='#', row_actions=None) %}
+{% if rows %}
+<div class="card overflow-x-auto">
+  <table class="w-full min-w-[640px] text-left text-sm">
+    <thead>
+      <tr class="border-b border-line bg-bg">
+        {% for col in columns %}
+        <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">{{ col.label }}</th>
+        {% endfor %}
+        {% if row_actions %}
+        <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-ink-muted">Aksi</th>
+        {% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr class="border-b border-line transition last:border-0 hover:bg-bg">
+        {% for col in columns %}
+        <td class="px-4 py-3 text-ink">
+          {% if col.badge %}
+          {{ status_badge(row[col.key]) }}
+          {% else %}
+          {{ row[col.key] }}
+          {% endif %}
+        </td>
+        {% endfor %}
+        {% if row_actions %}
+        <td class="whitespace-nowrap px-4 py-3 text-right">{{ row_actions(row) }}</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+{{ empty_state(empty_title, empty_message, empty_action_label, empty_action_url) }}
+{% endif %}
+{% endmacro %}

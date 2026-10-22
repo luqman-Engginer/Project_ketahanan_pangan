@@ -1,0 +1,16 @@
+{% macro chart_card(title, canvas_id, subtitle='') %}
+<section class="card p-5">
+  <header class="mb-4 flex items-start justify-between gap-3">
+    <div>
+      <h2 class="text-base font-semibold text-ink">{{ title }}</h2>
+      {% if subtitle %}
+      <p class="mt-0.5 text-sm text-ink-muted">{{ subtitle }}</p>
+      {% endif %}
+    </div>
+    <span class="hidden rounded-full bg-bg px-2.5 py-1 text-xs font-medium text-ink-muted sm:inline">30 hari</span>
+  </header>
+  <div class="relative h-64 w-full">
+    <canvas id="{{ canvas_id }}" role="img" aria-label="{{ title }}"></canvas>
+  </div>
+</section>
+{% endmacro %}

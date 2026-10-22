@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Notifikasi — FoodLoop ID{% endblock %}
+
+{% macro notif_icon(type) %}
+{% if type == 'expiry' %}
+<span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-warning-soft text-warning-ink">
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+</span>
+{% elif type == 'claim' %}
+<span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary-700">
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>
+</span>
+{% else %}
+<span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-success-soft text-success-ink">
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+</span>
+{% endif %}
+{% endmacro %}
+
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">Notifikasi</h1>
+    <p class="mt-1 text-sm text-ink-muted">{% if unread_count %}{{ unread_count }} notifikasi belum dibaca.{% else %}Semua notifikasi sudah dibaca.{% endif %}</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <a href="{{ url_for('notification.notification_page', show='semua') }}"
+       class="chip {{ 'chip-active' if show == 'semua' }}">Semua</a>
+    <a href="{{ url_for('notification.notification_page', show='unread') }}"
+       class="chip {{ 'chip-active' if show == 'unread' }}">Belum dibaca</a>
+    <form method="post" action="{{ url_for('notification.mark_all_read') }}" class="contents">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-secondary">Tandai semua dibaca</button>
+    </form>
+  </div>
+</div>
+
+{% if notifications %}
+<ul class="space-y-3" aria-label="Daftar notifikasi">
+  {% for n in notifications %}
+  <li class="card flex items-start gap-4 p-4 {{ 'border-primary-400' if not n.read }}">
+    {{ notif_icon(n.type) }}
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <p class="text-sm font-semibold text-ink">{{ n.title }}</p>
+        {% if not n.read %}<span class="h-2 w-2 shrink-0 rounded-full bg-primary-600" aria-label="Belum dibaca"></span>{% endif %}
+      </div>
+      <p class="mt-1 text-sm text-ink-muted">{{ n.body }}</p>
+      <p class="mt-2 text-xs text-ink-muted">{{ n.time }}</p>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="rounded-card border border-dashed border-line bg-surface px-6 py-12 text-center">
+  <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary-soft text-primary-700">
+    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+  </span>
+  <h3 class="mt-4 text-base font-semibold text-ink">Tidak ada notifikasi</h3>
+  <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">Semua sudah dibaca. Peringatan kedaluwarsa dan klaim baru akan muncul di sini.</p>
+  <a href="{{ url_for('notification.notification_page', show='semua') }}" class="btn btn-primary mt-5">Lihat semua</a>
+</div>
+{% endif %}
+{% endblock %}

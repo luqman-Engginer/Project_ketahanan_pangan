@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Admin — FoodLoop ID{% endblock %}
+{% from "components/data_table.html" import data_table %}
+{% from "components/status_badge.html" import status_badge %}
+
+{% block content %}
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">Panel Admin</h1>
+    <p class="mt-1 text-sm text-ink-muted">Verifikasi organisasi dan kelola faktor dampak (harga &amp; emisi per kategori).</p>
+  </div>
+  <a href="{{ url_for('admin.audit_logs') }}" class="btn btn-secondary">Lihat Audit Log</a>
+</div>
+
+<section aria-labelledby="org-heading" class="mb-8">
+  <h2 id="org-heading" class="mb-3 text-base font-semibold text-ink">Verifikasi organisasi</h2>
+  {% if organizations %}
+  <div class="card overflow-x-auto">
+    <table class="w-full min-w-[720px] text-left text-sm">
+      <thead>
+        <tr class="border-b border-line bg-bg">
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Organisasi</th>
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Tipe</th>
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Kota</th>
+          <th scope="col" class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-ink-muted">Status</th>
+          <th scope="col" class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-ink-muted">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for org in organizations %}
+        <tr class="border-b border-line transition last:border-0 hover:bg-bg">
+          <td class="px-4 py-3">
+            <span class="block font-medium text-ink">{{ org.name }}</span>
+            <span class="block text-xs text-ink-muted">{{ org.address }} · {{ org.phone }}</span>
+          </td>
+          <td class="px-4 py-3 text-ink">{{ org.type | capitalize }}</td>
+          <td class="px-4 py-3 text-ink">{{ org.city }}</td>
+          <td class="px-4 py-3">
+            {% if org.is_verified %}
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-2.5 py-1 text-xs font-medium text-success-ink">Terverifikasi</span>
+            {% else %}
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-warning-soft px-2.5 py-1 text-xs font-medium text-warning-ink">Menunggu</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-right">
+            {% if not org.is_verified %}
+            <form method="post" action="{{ url_for('admin.verify_organization', org_id=org.id) }}" class="inline">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="btn btn-primary btn-sm">Verifikasi</button>
+            </form>
+            {% else %}
+            <span class="text-xs text-ink-muted">{{ org.verified_at }}</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="card p-6 text-sm text-ink-muted">Belum ada organisasi terdaftar.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="factor-heading">
+  <h2 id="factor-heading" class="mb-3 text-base font-semibold text-ink">Faktor dampak per kategori</h2>
+  {% if impact_factors %}
+  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    {% for factor in impact_factors %}
+    <form method="post" action="{{ url_for('admin.update_impact_factor', category_id=factor.category_id) }}" class="card p-5">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <h3 class="text-sm font-semibold text-ink">{{ factor.category_name }}</h3>
+      <p class="mt-0.5 text-xs text-ink-muted">{{ factor.source_note or 'Tanpa catatan sumber' }}</p>
+      <div class="mt-4 grid grid-cols-2 gap-3">
+        <div>
+          <label for="price-{{ factor.category_id }}" class="mb-1.5 block text-xs font-medium text-ink-muted">Harga / kg (Rp)</label>
+          <input id="price-{{ factor.category_id }}" name="price_per_kg" type="number" step="1" min="0" class="input"
+                 value="{{ factor.price_per_kg | int }}" required>
+        </div>
+        <div>
+          <label for="co2e-{{ factor.category_id }}" class="mb-1.5 block text-xs font-medium text-ink-muted">CO₂e / kg</label>
+          <input id="co2e-{{ factor.category_id }}" name="co2e_per_kg" type="number" step="0.001" min="0" class="input"
+                 value="{{ factor.co2e_per_kg }}" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm mt-4 w-full">Simpan faktor</button>
+    </form>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="card p-6 text-sm text-ink-muted">Belum ada faktor dampak. Impor atau buat master data terlebih dahulu.</p>
+  {% endif %}
+</section>
+{% endblock %}

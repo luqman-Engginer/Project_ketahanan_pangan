@@ -1,0 +1,23 @@
+{% macro status_badge(status) %}
+{% set mapping = {
+  'tersedia': ('Tersedia', 'bg-success-soft text-success-ink', 'bg-success'),
+  'diklaim': ('Diklaim', 'bg-primary-soft text-primary-700', 'bg-primary-600'),
+  'diambil': ('Diambil', 'bg-bg text-ink-muted', 'bg-ink-muted'),
+  'kedaluwarsa': ('Kedaluwarsa', 'bg-danger-soft text-danger-ink', 'bg-danger'),
+  'pending': ('Menunggu', 'bg-warning-soft text-warning-ink', 'bg-warning'),
+  'approved': ('Disetujui', 'bg-primary-soft text-primary-700', 'bg-primary-600'),
+  'picked_up': ('Sudah diambil', 'bg-success-soft text-success-ink', 'bg-success'),
+  'cancelled': ('Dibatalkan', 'bg-bg text-ink-muted', 'bg-ink-muted'),
+  'aman': ('Aman', 'bg-success-soft text-success-ink', 'bg-success'),
+  'h3': ('H-3', 'bg-warning-soft text-warning-ink', 'bg-warning'),
+  'h1': ('H-1', 'bg-danger-soft text-danger-ink', 'bg-danger'),
+  'terbuang': ('Terbuang', 'bg-danger-soft text-danger-ink', 'bg-danger'),
+  'unread': ('Belum dibaca', 'bg-primary-soft text-primary-700', 'bg-primary-600'),
+  'read': ('Dibaca', 'bg-bg text-ink-muted', 'bg-ink-muted')
+} %}
+{% set label, box, dot = mapping.get(status, (status | capitalize, 'bg-bg text-ink-muted', 'bg-ink-muted')) %}
+<span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium {{ box }}">
+  <span class="h-1.5 w-1.5 rounded-full {{ dot }}" aria-hidden="true"></span>
+  {{ label }}
+</span>
+{% endmacro %}

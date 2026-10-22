@@ -1,0 +1,49 @@
+services:
+  app:
+    build: .
+    command: flask run --debug --host=0.0.0.0 --port=5000
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_APP: ${FLASK_APP:-wsgi:app}
+      FLASK_DEBUG: ${FLASK_DEBUG:-1}
+      SECRET_KEY: ${SECRET_KEY:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      MAX_CONTENT_LENGTH_MB: ${MAX_CONTENT_LENGTH_MB:-16}
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-foodloop}:${MYSQL_PASSWORD:-foodloop}@mysql:3306/${MYSQL_DATABASE:-foodloop}?charset=utf8mb4
+    volumes:
+      - .:/srv
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-foodloop}
+      MYSQL_USER: ${MYSQL_USER:-foodloop}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-foodloop}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mysql_data:

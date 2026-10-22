@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    @apply tracking-tight;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-card border border-line bg-surface shadow-card;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply bg-primary-700 text-white hover:bg-primary-600;
+  }
+
+  .btn-secondary {
+    @apply border border-line bg-surface text-ink hover:bg-bg;
+  }
+
+  .btn-ghost {
+    @apply text-ink-muted hover:bg-bg hover:text-ink;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  .input {
+    @apply w-full rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm text-ink placeholder:text-ink-muted focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-400;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:border-primary-400 hover:text-ink;
+  }
+
+  .chip-active {
+    @apply border-primary-700 bg-primary-700 text-white hover:border-primary-700 hover:text-white;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition;
+  }
+
+  .nav-link-active {
+    @apply bg-primary-soft text-primary-700;
+  }
+
+  .nav-link-idle {
+    @apply text-ink-muted hover:bg-bg hover:text-ink;
+  }
+
+  .tone-1 {
+    background-image: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-700));
+  }
+
+  .tone-2 {
+    background-image: linear-gradient(135deg, var(--color-success), var(--color-primary-600));
+  }
+
+  .tone-3 {
+    background-image: linear-gradient(135deg, var(--color-warning), var(--color-danger));
+  }
+
+  .tone-4 {
+    background-image: linear-gradient(135deg, var(--color-primary-400), var(--color-ink));
+  }
+
+  .tone-5 {
+    background-image: linear-gradient(135deg, var(--color-primary-400), var(--color-success));
+  }
+}

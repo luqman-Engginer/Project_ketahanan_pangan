@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Inventory — FoodLoop ID{% endblock %}
+{% from "components/kpi_card.html" import kpi_card %}
+{% from "components/data_table.html" import data_table %}
+{% from "components/status_badge.html" import status_badge %}
+
+{% macro item_actions(item) %}
+<div class="inline-flex items-center gap-2">
+  <a href="{{ url_for('inventory.inventory_page', edit=item.id, status=active_filter) }}#item-form"
+     class="btn btn-ghost btn-sm">Edit</a>
+  <form method="post" action="{{ url_for('inventory.convert_to_surplus', item_id=item.id) }}" class="inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-secondary btn-sm">Jadikan surplus</button>
+  </form>
+  <form method="post" action="{{ url_for('inventory.delete_item', item_id=item.id) }}" class="inline"
+        onsubmit="return confirm('Hapus item {{ item.name }} dari stok?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-ghost btn-sm text-danger-ink">Hapus</button>
+  </form>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">Inventory &amp; Pelacakan Kedaluwarsa</h1>
+    <p class="mt-1 text-sm text-ink-muted">Stok terpantau dengan peringatan H-3 dan H-1 beserta saran FEFO (First Expired First Out).</p>
+  </div>
+  <a href="/waste" class="btn btn-secondary">Buka Waste Log</a>
+</div>
+
+<section aria-label="Ringkasan stok" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  {% for kpi in kpis %}
+  {{ kpi_card(kpi) }}
+  {% endfor %}
+</section>
+
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+  <section aria-label="Formulir item" class="lg:col-span-1">
+    {% set current = items | selectattr('id', 'equalto', editing | int) | list %}
+    {% set edit_row = current[0] if current else None %}
+    <form id="item-form" method="post"
+          action="{{ url_for('inventory.update_item', item_id=edit_row.id) if edit_row else url_for('inventory.create_item') }}"
+          class="card p-5">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <h2 class="text-base font-semibold text-ink">{{ 'Ubah item stok' if edit_row else 'Tambah item stok' }}</h2>
+      <p class="mt-1 text-sm text-ink-muted">{{ 'Perbarui data item lalu simpan.' if edit_row else 'Catat stok baru untuk dipantau masa simpannya.' }}</p>
+
+      <div class="mt-4 space-y-4">
+        <div>
+          <label for="name" class="mb-1.5 block text-sm font-medium text-ink">Nama item</label>
+          <input id="name" name="name" type="text" class="input" maxlength="150" required
+                 value="{{ edit_row.name if edit_row else '' }}" placeholder="Contoh: Beras premium">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="category_id" class="mb-1.5 block text-sm font-medium text-ink">Kategori</label>
+            <select id="category_id" name="category_id" class="input" required>
+              <option value="" disabled {{ 'selected' if not edit_row }}>Pilih</option>
+              {% for cat in categories %}
+              <option value="{{ cat.id }}" {{ 'selected' if edit_row and edit_row.category_id == cat.id }}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="unit" class="mb-1.5 block text-sm font-medium text-ink">Satuan</label>
+            <input id="unit" name="unit" type="text" class="input" maxlength="20" required
+                   value="{{ edit_row.unit if edit_row else 'kg' }}">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="qty" class="mb-1.5 block text-sm font-medium text-ink">Jumlah</label>
+            <input id="qty" name="qty" type="number" step="0.01" min="0.01" class="input" required
+                   value="{{ edit_row.qty if edit_row else '' }}">
+          </div>
+          <div>
+            <label for="expires_on" class="mb-1.5 block text-sm font-medium text-ink">Kedaluwarsa</label>
+            <input id="expires_on" name="expires_on" type="date" class="input" required
+                   value="{{ edit_row.expires_raw if edit_row else '' }}">
+          </div>
+        </div>
+        <div>
+          <label for="cost_per_unit" class="mb-1.5 block text-sm font-medium text-ink">Biaya per satuan (Rp)</label>
+          <input id="cost_per_unit" name="cost_per_unit" type="number" step="1" min="0" class="input"
+                 value="{{ edit_row.cost_per_unit | int if edit_row else 0 }}">
+        </div>
+      </div>
+
+      <div class="mt-5 flex gap-2">
+        <button type="submit" class="btn btn-primary flex-1">{{ 'Simpan perubahan' if edit_row else 'Tambah item' }}</button>
+        {% if edit_row %}
+        <a href="{{ url_for('inventory.inventory_page', status=active_filter) }}" class="btn btn-ghost">Batal</a>
+        {% endif %}
+      </div>
+    </form>
+  </section>
+
+  <section aria-label="Daftar stok" class="lg:col-span-2">
+    <form method="get" action="{{ url_for('inventory.inventory_page') }}" class="mb-4 flex flex-col gap-3 sm:flex-row">
+      <input type="hidden" name="status" value="{{ active_filter }}">
+      <label class="relative block flex-1">
+        <span class="sr-only">Cari stok</span>
+        <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" name="q" value="{{ search_query }}" class="input pl-10" placeholder="Cari nama item atau kategori…" aria-label="Cari nama item atau kategori">
+      </label>
+      <button type="submit" class="btn btn-secondary">Cari</button>
+    </form>
+
+    <div class="mb-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter kedaluwarsa">
+      {% for f in filters %}
+      <a href="{{ url_for('inventory.inventory_page', status=f.key, q=search_query) }}"
+         class="chip {{ 'chip-active' if active_filter == f.key }}"
+         {% if active_filter == f.key %}aria-current="true"{% endif %}>{{ f.label }}</a>
+      {% endfor %}
+    </div>
+
+    {% set inv_columns = [
+      {'key': 'name', 'label': 'Item'},
+      {'key': 'category', 'label': 'Kategori'},
+      {'key': 'qty', 'label': 'Stok'},
+      {'key': 'expires_on', 'label': 'Kedaluwarsa'},
+      {'key': 'status', 'label': 'Peringatan', 'badge': True},
+      {'key': 'org', 'label': 'Organisasi'}
+    ] %}
+    {{ data_table(inv_columns, items, 'Belum ada item',
+       'Stok yang Anda catat akan muncul di sini beserta peringatan kedaluwarsanya.',
+       'Lihat papan surplus', '/surplus', row_actions=item_actions) }}
+  </section>
+</div>
+
+<div class="mt-4 flex items-start gap-2 rounded-card border border-line bg-primary-soft px-4 py-3 text-sm text-ink">
+  <span class="font-semibold">FEFO:</span>
+  <span>Urutan tabel sudah diurutkan dari kedaluwarsa terdekat. Prioritaskan item H-1 untuk dijadikan surplus sebelum dicatat sebagai limbah.</span>
+</div>
+{% endblock %}
