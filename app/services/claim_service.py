@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 from app.extensions import db
 from app.models import City, Claim, Organization, SurplusListing
-from app.services import realtime
+from app.services import audit_service, realtime
 
 
 def create_claim(listing_id: int, receiver_org_id: int) -> Claim:
@@ -38,6 +38,7 @@ def create_claim(listing_id: int, receiver_org_id: int) -> Claim:
     listing.status = "claimed"
     db.session.add(claim)
     db.session.commit()
+    audit_service.log_action("CREATE_CLAIM", "claim", claim.id)
 
     _announce_claim(claim, listing, notify_donor=True)
     return claim
@@ -79,6 +80,7 @@ def update_claim_status(
         claim.status = new_status
 
     db.session.commit()
+    audit_service.log_action("UPDATE_CLAIM_STATUS", "claim", claim_id)
 
     _announce_claim(claim, listing, notify_receiver=(new_status != "cancelled"))
     if new_status == "picked_up":

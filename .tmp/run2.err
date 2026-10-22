@@ -1,0 +1,636 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+127.0.0.1 - - [22/Oct/2026 16:25:37] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:25:44] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:08] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:08] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:26:22] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:22] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:26:22] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:22] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /laporan/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /admin/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /inventaris/ HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /surplus/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /klaim/ HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /limbah/ HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /notifikasi/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /publik HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:26:23] "GET /events HTTP/1.1" 200 -
+[2026-10-22 16:26:43,852] WARNING in error_handlers: CSRF rejection on /logout: 400 Bad Request: The CSRF token is missing.
+127.0.0.1 - - [22/Oct/2026 16:26:43] "POST /logout HTTP/1.1" 400 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /inventory HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /claims/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /waste/ HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /export/impact.pdf HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:27:16] "GET /export/impact.xlsx HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:27:40] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:40] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:27:40] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:40] "GET /waste HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:40] "GET /laporan/export HTTP/1.1" 400 -
+127.0.0.1 - - [22/Oct/2026 16:27:40] "GET /reports/export HTTP/1.1" 400 -
+127.0.0.1 - - [22/Oct/2026 16:27:56] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:27:56] "POST /login HTTP/1.1" 429 -
+127.0.0.1 - - [22/Oct/2026 16:29:06] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:29:06] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:29:06] "GET /dashboard HTTP/1.1" 200 -
+[2026-10-22 16:29:06,937] ERROR in error_handlers: HTTP 503 on /laporan/export
+127.0.0.1 - - [22/Oct/2026 16:29:06] "GET /laporan/export?format=pdf HTTP/1.1" 503 -
+127.0.0.1 - - [22/Oct/2026 16:29:07] "GET /laporan/export?format=xlsx HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:29:07] "GET /laporan/export?format=csv HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:29:15] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:29:15] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:29:15] "GET /dashboard HTTP/1.1" 200 -
+[2026-10-22 16:29:15,640] ERROR in error_handlers: HTTP 503 on /laporan/export
+127.0.0.1 - - [22/Oct/2026 16:29:15] "GET /laporan/export?format=pdf HTTP/1.1" 503 -
+127.0.0.1 - - [22/Oct/2026 16:29:15] "GET /laporan/export?format=xlsx HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:29:15] "GET /laporan/export?format=csv HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:30:00] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:31:05] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:43] "GET /static/css/tokens.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:43] "GET /static/css/app.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:33:57] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:57] "GET /static/css/tokens.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:57] "GET /static/css/app.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:33:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [22/Oct/2026 16:34:16] "GET /surplus HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:34:16] "GET /surplus/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:16] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:16] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:19] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:19] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:22] "GET /surplus HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:34:22] "GET /surplus/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:22] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:22] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:30] "GET /surplus/?q=&category=&city=&status=tersedia HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:30] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:30] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:31] "GET /surplus/?q=&category=&city=&status=diklaim HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:31] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:31] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:32] "GET /surplus/?q=&category=&city=&status=diambil HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:32] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:32] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:33] "GET /surplus/?q=&category=&city=&status=kedaluwarsa HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:33] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:33] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:34] "GET /surplus/?q=&category=&city=&status=semua HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:34] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:34] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:40] "GET /surplus/?q=&category=Produk+Roti+%26+Bakery&city=Banyumas+(Purwokerto) HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:34:40] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:40] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:34:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:03] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:03] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:03] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:08] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:08] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:08] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:32] "POST /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:35:32] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:32] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:32] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /surplus HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /surplus/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /inventory HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:34] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:35] "GET /waste HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:35] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:35] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:36] "GET /laporan HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:35:36] "GET /laporan/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:36] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:36] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:39] "GET /publik HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:39] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:39] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:44] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:44] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:44] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:46] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:46] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:48] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:48] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:48] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:49] "GET /surplus/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:49] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:49] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:52] "GET /inventory/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:52] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:52] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:56] "GET /claims HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:35:56] "GET /claims/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:35:56] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:35:56] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:00] "POST /claims/62/status HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:36:00] "GET /claims/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:00] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:00] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:01] "POST /claims/31/status HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:36:01] "GET /claims/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:01] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:01] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:02] "GET /waste HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:02] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:02] "GET /static/css/app.css HTTP/1.1" 304 -
+[2026-10-22 16:36:14,267] ERROR in error_handlers: Unhandled error: (pymysql.err.IntegrityError) (1048, "Column 'org_id' cannot be null")
+[SQL: INSERT INTO waste_logs (org_id, category_id, qty_kg, reason, logged_on, created_at) VALUES (%(org_id)s, %(category_id)s, %(qty_kg)s, %(reason)s, %(logged_on)s, %(created_at)s)]
+[parameters: {'org_id': None, 'category_id': 1, 'qty_kg': Decimal('2.2'), 'reason': 'Melebihi tanggal kedaluwarsa sebelum sempat terjual/terserap', 'logged_on': datetime.date(2026, 10, 22), 'created_at': datetime.datetime(2026, 10, 22, 8, 36, 14, 264194)}]
+(Background on this error at: https://sqlalche.me/e/21/gkpj)
+Traceback (most recent call last):
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 170, in execute
+    result = self._query(query)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 335, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 581, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 857, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 1290, in read
+    first_packet = self.connection._read_packet()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 810, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\err.py", line 154, in raise_mysql_exception
+    raise errorclass(errno, errval, sqlstate=sqlstate)
+pymysql.err.IntegrityError: (1048, "Column 'org_id' cannot be null")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\app\utils\decorators.py", line 29, in wrapper
+    return view_func(*args, **kwargs)
+  File "D:\Project_ketahanan_pangan\app\blueprints\waste.py", line 62, in waste_page
+    waste_service.add_waste_log(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        org_id=org_id,
+        ^^^^^^^^^^^^^^
+    ...<2 lines>...
+        reason=reason,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\app\services\waste_service.py", line 265, in add_waste_log
+    db.session.commit()
+    ~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\scoping.py", line 611, in commit
+    return self._proxied.commit()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2095, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit>", line 2, in commit
+    return target(fn, self, _to_root=_to_root)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1330, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl>", line 2, in _prepare_impl
+    return target(fn, self)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1304, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4536, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "<sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush>", line 2, in _flush
+    return target(fn, self, objects=objects)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\util\deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4679, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4640, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 467, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 643, in execute
+    util.preloaded.orm_persistence._save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 92, in _save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
+    ...<3 lines>...
+        insert,
+        ^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1237, in _emit_insert_statements
+    result = connection.execute(
+        statement,
+        params,
+        execution_options=execution_options,
+    )
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1458, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 533, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1678, in _execute_clauseelement
+    ret = self._execute_context(
+        dialect,
+    ...<9 lines>...
+        param_dict=param_dict,
+    )
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1832, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1972, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2342, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 170, in execute
+    result = self._query(query)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 335, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 581, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 857, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 1290, in read
+    first_packet = self.connection._read_packet()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 810, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\err.py", line 154, in raise_mysql_exception
+    raise errorclass(errno, errval, sqlstate=sqlstate)
+sqlalchemy.exc.IntegrityError: (pymysql.err.IntegrityError) (1048, "Column 'org_id' cannot be null")
+[SQL: INSERT INTO waste_logs (org_id, category_id, qty_kg, reason, logged_on, created_at) VALUES (%(org_id)s, %(category_id)s, %(qty_kg)s, %(reason)s, %(logged_on)s, %(created_at)s)]
+[parameters: {'org_id': None, 'category_id': 1, 'qty_kg': Decimal('2.2'), 'reason': 'Melebihi tanggal kedaluwarsa sebelum sempat terjual/terserap', 'logged_on': datetime.date(2026, 10, 22), 'created_at': datetime.datetime(2026, 10, 22, 8, 36, 14, 264194)}]
+(Background on this error at: https://sqlalche.me/e/21/gkpj)
+127.0.0.1 - - [22/Oct/2026 16:36:14] "POST /waste HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _exec_single_context
+    self.dialect.do_execute(
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 170, in execute
+    result = self._query(query)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 335, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 581, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 857, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 1290, in read
+    first_packet = self.connection._read_packet()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 810, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\err.py", line 154, in raise_mysql_exception
+    raise errorclass(errno, errval, sqlstate=sqlstate)
+pymysql.err.IntegrityError: (1048, "Column 'org_id' cannot be null")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask_login\utils.py", line 290, in decorated_view
+    return current_app.ensure_sync(func)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\app\utils\decorators.py", line 29, in wrapper
+    return view_func(*args, **kwargs)
+  File "D:\Project_ketahanan_pangan\app\blueprints\waste.py", line 62, in waste_page
+    waste_service.add_waste_log(
+    ^
+  File "D:\Project_ketahanan_pangan\app\services\waste_service.py", line 265, in add_waste_log
+    db.session.commit()
+    ~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\scoping.py", line 611, in commit
+    return self._proxied.commit()
+           ~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2095, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit>", line 2, in commit
+    return target(fn, self, _to_root=_to_root)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1330, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl>", line 2, in _prepare_impl
+    return target(fn, self)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1304, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4536, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "<sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush>", line 2, in _flush
+    return target(fn, self, objects=objects)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\util\deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4679, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4640, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 467, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 643, in execute
+    util.preloaded.orm_persistence._save_obj(
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 92, in _save_obj
+    _emit_insert_statements(
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1237, in _emit_insert_statements
+    result = connection.execute(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1458, in execute
+    return meth(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 533, in _execute_on_connection
+    return connection._execute_clauseelement(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1678, in _execute_clauseelement
+    ret = self._execute_context(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1832, in _execute_context
+    return self._exec_single_context(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1972, in _exec_single_context
+    self._handle_dbapi_exception(
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2342, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1953, in _exec_single_context
+    self.dialect.do_execute(
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 170, in execute
+    result = self._query(query)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\cursors.py", line 335, in _query
+    conn.query(q)
+    ~~~~~~~~~~^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 581, in query
+    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
+                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 857, in _read_query_result
+    result.read()
+    ~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 1290, in read
+    first_packet = self.connection._read_packet()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\connections.py", line 810, in _read_packet
+    packet.raise_for_error()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\protocol.py", line 219, in raise_for_error
+    err.raise_mysql_exception(self._data)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\pymysql\err.py", line 154, in raise_mysql_exception
+    raise errorclass(errno, errval, sqlstate=sqlstate)
+sqlalchemy.exc.IntegrityError: (pymysql.err.IntegrityError) (1048, "Column 'org_id' cannot be null")
+[SQL: INSERT INTO waste_logs (org_id, category_id, qty_kg, reason, logged_on, created_at) VALUES (%(org_id)s, %(category_id)s, %(qty_kg)s, %(reason)s, %(logged_on)s, %(created_at)s)]
+[parameters: {'org_id': None, 'category_id': 1, 'qty_kg': Decimal('2.2'), 'reason': 'Melebihi tanggal kedaluwarsa sebelum sempat terjual/terserap', 'logged_on': datetime.date(2026, 10, 22), 'created_at': datetime.datetime(2026, 10, 22, 8, 36, 14, 264194)}]
+(Background on this error at: https://sqlalche.me/e/21/gkpj)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 809, in handle_user_exception
+    return self.ensure_sync(handler)(e)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "D:\Project_ketahanan_pangan\app\error_handlers.py", line 72, in handle_unexpected_error
+    return _generic_response(500, GENERIC_MESSAGES[500])
+  File "D:\Project_ketahanan_pangan\app\error_handlers.py", line 38, in _generic_response
+    return render_template("error.html", code=code, message=message), code
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\templating.py", line 151, in render_template
+    return _render(app, template, context)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\templating.py", line 128, in _render
+    app.update_template_context(context)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask\app.py", line 530, in update_template_context
+    context.update(self.ensure_sync(func)())
+                   ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "D:\Project_ketahanan_pangan\app\__init__.py", line 123, in inject_globals
+    unread = notification_service.get_unread_count(current_user.id) if current_user.is_authenticated else 0
+                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\flask_login\mixins.py", line 17, in is_authenticated
+    return self.is_active
+           ^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 575, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1091, in get
+    value = self._fire_loader_callables(state, key, passive)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1121, in _fire_loader_callables
+    return state._load_expired(state, passive)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\state.py", line 833, in _load_expired
+    self.manager.expired_attribute_loader(self, toload, passive)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 1700, in _load_scalar_attributes
+    result = _load_on_ident(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 518, in _load_on_ident
+    return _load_on_pk_identity(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 702, in _load_on_pk_identity
+    session.execute(
+    ^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2473, in execute
+    return self._execute_internal(
+    
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2350, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2173, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._connection_for_bind>", line 2, in _connection_for_bind
+    return target(fn, self, bind, execution_options)
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 101, in _go
+    self._raise_for_prerequisite_state(fn.__name__, current_state)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Project_ketahanan_pangan\myproject\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 987, in _raise_for_prerequisite_state
+    raise sa_exc.PendingRollbackError(
+    ^
+sqlalchemy.exc.PendingRollbackError: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (pymysql.err.IntegrityError) (1048, "Column 'org_id' cannot be null")
+[SQL: INSERT INTO waste_logs (org_id, category_id, qty_kg, reason, logged_on, created_at) VALUES (%(org_id)s, %(category_id)s, %(qty_kg)s, %(reason)s, %(logged_on)s, %(created_at)s)]
+[parameters: {'org_id': None, 'category_id': 1, 'qty_kg': Decimal('2.2'), 'reason': 'Melebihi tanggal kedaluwarsa sebelum sempat terjual/terserap', 'logged_on': datetime.date(2026, 10, 22), 'created_at': datetime.datetime(2026, 10, 22, 8, 36, 14, 264194)}]
+(Background on this error at: https://sqlalche.me/e/21/gkpj) (Background on this error at: https://sqlalche.me/e/21/7s2a)
+127.0.0.1 - - [22/Oct/2026 16:36:14] "GET /waste?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:14] "GET /waste?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:14] "GET /waste?__debugger__=yes&cmd=resource&f=console.png&s=ZbvjrMeYJI9vGE8Q2kFv HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:14] "GET /waste?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:18] "GET /laporan HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:36:18] "GET /laporan/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:18] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:18] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:21] "GET /notifikasi HTTP/1.1" 308 -
+127.0.0.1 - - [22/Oct/2026 16:36:21] "GET /notifikasi/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:21] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:21] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:22] "GET /notifikasi/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:22] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:22] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:23] "GET /laporan/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:23] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:23] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:33] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:33] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:33] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:55] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:55] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:55] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:57] "GET /notifikasi/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:57] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:57] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "GET /notifikasi/?show=unread HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "POST /notifikasi/tandai-dibaca HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "GET /notifikasi/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:36:59] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:00] "GET /notifikasi/?show=semua HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:37:00] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:00] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:02] "GET /logout HTTP/1.1" 405 -
+127.0.0.1 - - [22/Oct/2026 16:37:02] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:03] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:06] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:37:06] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:06] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:08] "GET /logout HTTP/1.1" 405 -
+127.0.0.1 - - [22/Oct/2026 16:37:08] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:08] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:13] "GET /logout HTTP/1.1" 405 -
+127.0.0.1 - - [22/Oct/2026 16:37:13] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:13] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:15] "GET /login HTTP/1.1" 302 -
+127.0.0.1 - - [22/Oct/2026 16:37:15] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:37:15] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:15] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:17] "GET /logout HTTP/1.1" 405 -
+127.0.0.1 - - [22/Oct/2026 16:37:18] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:18] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:37:19] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:19] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:23] "GET /logout HTTP/1.1" 405 -
+127.0.0.1 - - [22/Oct/2026 16:37:23] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:23] "GET /static/css/app.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:25] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Oct/2026 16:37:25] "GET /static/css/tokens.css HTTP/1.1" 304 -
+127.0.0.1 - - [22/Oct/2026 16:37:25] "GET /static/css/app.css HTTP/1.1" 304 -

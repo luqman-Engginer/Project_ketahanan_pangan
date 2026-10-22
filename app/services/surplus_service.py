@@ -9,7 +9,7 @@ from sqlalchemy import or_
 
 from app.extensions import db
 from app.models import City, Comment, FoodCategory, Organization, SurplusListing, User
-from app.services import realtime
+from app.services import audit_service, realtime
 
 _DB_TO_UI_STATUS = {
     "available": "tersedia",
@@ -221,6 +221,7 @@ def create_surplus_listing(
     )
     db.session.add(listing)
     db.session.commit()
+    audit_service.log_action("CREATE_SURPLUS", "surplus_listing", listing.id)
 
     announce_listing(listing, actor_user_id=actor_user_id)
     return listing
@@ -311,6 +312,7 @@ def update_surplus_listing(
     listing.city_id = city_id
     listing.notes = notes.strip() if notes else None
     db.session.commit()
+    audit_service.log_action("UPDATE_SURPLUS", "surplus_listing", listing.id)
     return listing
 
 
@@ -331,6 +333,7 @@ def delete_surplus_listing(listing_id: int, org_id: int) -> None:
         raise ValueError("Surplus yang sudah diklaim atau diambil tidak dapat dihapus.")
     db.session.delete(listing)
     db.session.commit()
+    audit_service.log_action("DELETE_SURPLUS", "surplus_listing", listing_id)
 
 
 def add_comment(
@@ -348,6 +351,7 @@ def add_comment(
     )
     db.session.add(comment)
     db.session.commit()
+    audit_service.log_action("ADD_COMMENT", "comment", comment.id)
     return comment
 
 

@@ -9,7 +9,7 @@ from sqlalchemy import func
 
 from app.extensions import db
 from app.models import FoodCategory, InventoryItem, Organization, SurplusListing
-from app.services import realtime, surplus_service
+from app.services import audit_service, realtime, surplus_service
 
 
 def _map_expiry_status(days_left: int) -> str:
@@ -146,6 +146,7 @@ def update_inventory_item(
     item.expires_on = expires_on
     item.cost_per_unit = cost_per_unit
     db.session.commit()
+    audit_service.log_action("UPDATE_INVENTORY_ITEM", "inventory_item", item_id)
     _announce_expiry(item)
     return item
 
@@ -164,6 +165,7 @@ def delete_inventory_item(item_id: int, org_id: int) -> None:
     item = get_inventory_item(item_id, org_id)
     db.session.delete(item)
     db.session.commit()
+    audit_service.log_action("DELETE_INVENTORY_ITEM", "inventory_item", item_id)
 
 
 def get_category_choices() -> list[dict[str, Any]]:
@@ -255,6 +257,7 @@ def create_inventory_item(
     )
     db.session.add(item)
     db.session.commit()
+    audit_service.log_action("CREATE_INVENTORY_ITEM", "inventory_item", item.id)
     _announce_expiry(item)
     return item
 
@@ -302,6 +305,7 @@ def convert_inventory_to_surplus(
     # Remove from inventory or deduct
     db.session.delete(item)
     db.session.commit()
+    audit_service.log_action("CONVERT_TO_SURPLUS", "surplus_listing", listing.id)
 
     surplus_service.announce_listing(listing)
     return listing

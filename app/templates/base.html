@@ -138,7 +138,10 @@
       <nav class="flex items-center gap-2" aria-label="Navigasi utama">
         {% if current_user.is_authenticated %}
         <a href="/dashboard" class="btn btn-ghost">Dashboard</a>
-        <a href="/logout" class="btn btn-secondary">Keluar</a>
+        <form action="{{ url_for('auth.logout') }}" method="post" class="inline" style="display:inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-secondary">Keluar</button>
+        </form>
         {% else %}
         <a href="/login" class="btn btn-ghost">Masuk</a>
         <a href="/register" class="btn btn-primary">Daftar</a>
@@ -183,7 +186,7 @@
 {% endif %}
 
 <div id="toast-region" aria-live="polite" class="pointer-events-none fixed inset-x-4 bottom-24 z-50 flex flex-col items-end gap-2 sm:inset-x-auto sm:right-6 lg:bottom-6"></div>
-<script>
+<script nonce="{{ csp_nonce() }}">
   window.showToast = function (message, type) {
     var colors = { success: '#16a34a', warning: '#f59e0b', danger: '#dc2626', info: '#0284c7' };
     var region = document.getElementById('toast-region');

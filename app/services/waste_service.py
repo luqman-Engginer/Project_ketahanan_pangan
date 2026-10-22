@@ -9,6 +9,7 @@ from sqlalchemy import func
 
 from app.extensions import db
 from app.models import FoodCategory, ImpactFactor, WasteLog
+from app.services import audit_service
 
 WASTE_REASONS: list[str] = [
     "Melebihi tanggal kedaluwarsa sebelum sempat terjual/terserap",
@@ -227,6 +228,7 @@ def update_waste_log(
     if logged_on is not None:
         entry.logged_on = logged_on
     db.session.commit()
+    audit_service.log_action("UPDATE_WASTE_LOG", "waste_log", log_id)
     return entry
 
 
@@ -244,6 +246,7 @@ def delete_waste_log(log_id: int, org_id: int) -> None:
     entry = get_waste_log_entry(log_id, org_id)
     db.session.delete(entry)
     db.session.commit()
+    audit_service.log_action("DELETE_WASTE_LOG", "waste_log", log_id)
 
 
 def add_waste_log(
@@ -263,5 +266,6 @@ def add_waste_log(
     )
     db.session.add(entry)
     db.session.commit()
+    audit_service.log_action("ADD_WASTE_LOG", "waste_log", entry.id)
     return entry
 
