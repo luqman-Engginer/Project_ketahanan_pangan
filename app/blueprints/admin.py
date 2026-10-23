@@ -33,6 +33,7 @@ def index() -> Union[str, Response]:
         review_counts=impact.get_review_counts(),
         trend=impact.get_daily_rescued_trend(days=14),
         kategori=impact.get_category_distribution(),
+        insights=impact.get_admin_insights(),
     )
 
 
@@ -52,9 +53,25 @@ def pasokan_board() -> str:
         city_name=city or None,
         review_status=status or None,
     )
+    page = max(1, int(request.args.get("page", "1") or 1))
+    per_page = 9
+    total = len(listings)
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    paginated = listings[start_idx:end_idx]
+    pagination = {
+        "page": page,
+        "per_page": per_page,
+        "total": total,
+        "pages": max(1, (total + per_page - 1) // per_page) if total else 1,
+        "has_prev": page > 1,
+        "has_next": page < max(1, (total + per_page - 1) // per_page) if total else 1,
+        "prev_page": page - 1,
+        "next_page": page + 1,
+    }
     return render_template(
         "surplus/board.html",
-        listings=listings,
+        listings=paginated,
         categories=surplus_service.get_category_options(),
         cities=surplus_service.get_city_options(),
         search_query=search,
@@ -64,6 +81,7 @@ def pasokan_board() -> str:
         can_create=False,
         create_form=None,
         mode="admin",
+        pagination=pagination,
     )
 
 

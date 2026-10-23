@@ -31,6 +31,7 @@ def surplus_board() -> str:
     category = request.args.get("category", "").strip()
     city = request.args.get("city", "").strip()
     status = request.args.get("status", "").strip()
+    page = max(1, int(request.args.get("page", "1") or 1))
     listings = surplus_service.get_surplus_listings(
         org_id=org_id,
         search_query=search or None,
@@ -38,9 +39,24 @@ def surplus_board() -> str:
         city_name=city or None,
         review_status=status or None,
     )
+    per_page = 9
+    total = len(listings)
+    pages = max(1, (total + per_page - 1) // per_page) if total else 1
+    page = min(page, pages)
+    paginated = listings[(page - 1) * per_page:page * per_page]
+    pagination = {
+        "page": page,
+        "per_page": per_page,
+        "total": total,
+        "pages": pages,
+        "has_prev": page > 1,
+        "has_next": page < pages,
+        "prev_page": page - 1,
+        "next_page": page + 1,
+    }
     return render_template(
         "surplus/board.html",
-        listings=listings,
+        listings=paginated,
         categories=surplus_service.get_category_options(),
         cities=surplus_service.get_city_options(),
         search_query=search,
@@ -50,6 +66,7 @@ def surplus_board() -> str:
         can_create=True,
         create_form=SurplusListingForm(),
         mode="supplier",
+        pagination=pagination,
     )
 
 

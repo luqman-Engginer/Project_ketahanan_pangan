@@ -66,6 +66,15 @@ def get_inventory_items(
             continue
 
         days_label = "Lewat" if days_left < 0 else ("Hari ini" if days_left == 0 else f"H-{days_left}")
+        if days_left < 0:
+            recommendation_badge = "Catat Food Waste"
+        elif days_left <= 1:
+            recommendation_badge = "Donasikan sekarang"
+        elif days_left <= 3:
+            recommendation_badge = "Jadikan Pasokan"
+        else:
+            recommendation_badge = "Aman"
+
         formatted.append(
             {
                 "id": item.id,
@@ -79,12 +88,48 @@ def get_inventory_items(
                 "days_left": days_left,
                 "days_label": days_label,
                 "status": status,
+                "recommendation_badge": recommendation_badge,
                 "org": org_name,
                 "org_id": item.org_id,
                 "cost_per_unit": float(item.cost_per_unit),
             }
         )
     return formatted
+
+
+def get_inventory_items_paginated(
+    org_id: Optional[int] = None,
+    status_filter: Optional[str] = "semua",
+    search_query: Optional[str] = None,
+    page: int = 1,
+    per_page: int = 10,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Retrieve inventory items with pagination metadata."""
+    import math
+
+    all_items = get_inventory_items(
+        org_id=org_id,
+        status_filter=status_filter,
+        search_query=search_query,
+    )
+    total = len(all_items)
+    total_pages = max(1, math.ceil(total / per_page)) if per_page > 0 else 1
+    page = max(1, min(page, total_pages))
+    start_idx = (page - 1) * per_page
+    end_idx = start_idx + per_page
+    paged_items = all_items[start_idx:end_idx]
+
+    pagination = {
+        "page": page,
+        "per_page": per_page,
+        "total": total,
+        "pages": total_pages,
+        "has_prev": page > 1,
+        "has_next": page < total_pages,
+        "prev_page": page - 1,
+        "next_page": page + 1,
+    }
+    return paged_items, pagination
 
 
 def get_inventory_item(item_id: int, org_id: int) -> InventoryItem:

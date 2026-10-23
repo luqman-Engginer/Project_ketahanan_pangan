@@ -1,0 +1,66 @@
+{# Reusable pagination component for tables and grid boards #}
+{% macro render_pagination(pagination, endpoint, extra_params={}) %}
+{% if pagination and pagination.pages > 1 %}
+<nav class="mt-6 flex flex-col items-center justify-between gap-4 border-t border-line pt-4 sm:flex-row" aria-label="Navigasi halaman">
+  <div class="text-xs text-ink-muted">
+    Menampilkan <span class="font-semibold text-ink">{{ ((pagination.page - 1) * pagination.per_page) + 1 }}</span>
+    sampai <span class="font-semibold text-ink">{{ [pagination.page * pagination.per_page, pagination.total] | min }}</span>
+    dari <span class="font-semibold text-ink">{{ pagination.total }}</span> total data
+  </div>
+
+  <div class="flex items-center gap-1.5">
+    {# Previous page button #}
+    {% if pagination.has_prev %}
+    {% set prev_params = extra_params.copy() %}
+    {% set _ = prev_params.update({'page': pagination.prev_page}) %}
+    <a href="{{ url_for(endpoint, **prev_params) }}"
+       class="btn btn-secondary btn-sm"
+       aria-label="Halaman sebelumnya">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <span class="hidden sm:inline">Sebelumnya</span>
+    </a>
+    {% else %}
+    <span class="btn btn-secondary btn-sm opacity-40 cursor-not-allowed" aria-disabled="true">
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      <span class="hidden sm:inline">Sebelumnya</span>
+    </span>
+    {% endif %}
+
+    {# Page number links #}
+    <div class="flex items-center gap-1">
+      {% for p in range(1, pagination.pages + 1) %}
+        {% if p == 1 or p == pagination.pages or (p >= pagination.page - 1 and p <= pagination.page + 1) %}
+          {% set p_params = extra_params.copy() %}
+          {% set _ = p_params.update({'page': p}) %}
+          {% if p == pagination.page %}
+          <span class="grid h-8 w-8 place-items-center rounded-xl bg-primary-700 text-xs font-bold text-white shadow-sm" aria-current="page">{{ p }}</span>
+          {% else %}
+          <a href="{{ url_for(endpoint, **p_params) }}"
+             class="grid h-8 w-8 place-items-center rounded-xl border border-line bg-surface text-xs font-medium text-ink hover:border-primary-400 hover:bg-bg transition">{{ p }}</a>
+          {% endif %}
+        {% elif p == pagination.page - 2 or p == pagination.page + 2 %}
+          <span class="px-1 text-xs text-ink-muted">…</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    {# Next page button #}
+    {% if pagination.has_next %}
+    {% set next_params = extra_params.copy() %}
+    {% set _ = next_params.update({'page': pagination.next_page}) %}
+    <a href="{{ url_for(endpoint, **next_params) }}"
+       class="btn btn-secondary btn-sm"
+       aria-label="Halaman berikutnya">
+      <span class="hidden sm:inline">Berikutnya</span>
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+    {% else %}
+    <span class="btn btn-secondary btn-sm opacity-40 cursor-not-allowed" aria-disabled="true">
+      <span class="hidden sm:inline">Berikutnya</span>
+      <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </span>
+    {% endif %}
+  </div>
+</nav>
+{% endif %}
+{% endmacro %}

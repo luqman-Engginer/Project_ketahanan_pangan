@@ -3,6 +3,7 @@
 {% from "components/kpi_card.html" import kpi_card %}
 {% from "components/data_table.html" import data_table %}
 {% from "components/status_badge.html" import status_badge %}
+{% from "components/pagination.html" import render_pagination %}
 {% set read_only = read_only | default(false) %}
 
 {% macro item_actions(item) %}
@@ -127,6 +128,7 @@
       {'key': 'category', 'label': 'Kategori'},
       {'key': 'qty', 'label': 'Stok'},
       {'key': 'expires_on', 'label': 'Kedaluwarsa'},
+      {'key': 'recommendation_badge', 'label': 'Rekomendasi', 'badge': True},
       {'key': 'status', 'label': 'Peringatan', 'badge': True},
       {'key': 'org', 'label': 'Organisasi'}
     ] %}
@@ -134,6 +136,7 @@
        'Stok yang dicatat supplier akan muncul di sini beserta peringatan kedaluwarsanya.',
        'Lihat pasokan', url_for('admin.pasokan_board') if read_only else url_for('surplus.surplus_board'),
        row_actions=None if read_only else item_actions) }}
+    {{ render_pagination(pagination, 'inventory.inventory_page', {'status': active_filter, 'q': search_query}) }}
   </section>
 </div>
 

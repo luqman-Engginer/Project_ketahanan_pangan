@@ -102,6 +102,117 @@ def get_dashboard_kpis(org_id: Optional[int] = None) -> list[dict[str, Any]]:
     ]
 
 
+def get_admin_insights(org_id: Optional[int] = None) -> list[dict[str, Any]]:
+    """Compile rule-based admin insight cards for the dashboard."""
+    today = date.today()
+    current_month_start = today.replace(day=1)
+    prev_month_start = (current_month_start.replace(day=1) - timedelta(days=1)).replace(day=1)
+    prev_month_end = current_month_start - timedelta(days=1)
+
+    waste_q = (
+        db.session.query(
+            FoodCategory.name.label("category_name"),
+            func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")).label("qty_kg"),
+        )
+        .join(FoodCategory, SurplusListing.category_id == FoodCategory.id)
+        .filter(SurplusListing.review_status == "approved")
+    )
+    if org_id:
+        waste_q = waste_q.filter(SurplusListing.org_id == org_id)
+    waste_row = waste_q.group_by(FoodCategory.id, FoodCategory.name).order_by(func.sum(SurplusListing.qty_kg).desc()).first()
+
+    current_month = (
+        db.session.query(func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")))
+        .filter(
+            SurplusListing.review_status == "approved",
+            func.date(SurplusListing.created_at) >= current_month_start,
+            func.date(SurplusListing.created_at) <= today,
+        )
+        .scalar()
+        or Decimal("0")
+    )
+    if org_id:
+        current_month = (
+            db.session.query(func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")))
+            .filter(
+                SurplusListing.org_id == org_id,
+                SurplusListing.review_status == "approved",
+                func.date(SurplusListing.created_at) >= current_month_start,
+                func.date(SurplusListing.created_at) <= today,
+            )
+            .scalar()
+            or Decimal("0")
+        )
+    previous_month = (
+        db.session.query(func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")))
+        .filter(
+            SurplusListing.review_status == "approved",
+            func.date(SurplusListing.created_at) >= prev_month_start,
+            func.date(SurplusListing.created_at) <= prev_month_end,
+        )
+        .scalar()
+        or Decimal("0")
+    )
+    if org_id:
+        previous_month = (
+            db.session.query(func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")))
+            .filter(
+                SurplusListing.org_id == org_id,
+                SurplusListing.review_status == "approved",
+                func.date(SurplusListing.created_at) >= prev_month_start,
+                func.date(SurplusListing.created_at) <= prev_month_end,
+            )
+            .scalar()
+            or Decimal("0")
+        )
+    trend_delta = 0.0
+    if float(previous_month) > 0:
+        trend_delta = ((float(current_month) - float(previous_month)) / float(previous_month)) * 100
+
+    rescued_kg = float(current_month)
+    waste_kg = 0.0
+    waste_rows = (
+        db.session.query(func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")))
+        .filter(SurplusListing.review_status == "rejected", func.date(SurplusListing.created_at) >= current_month_start, func.date(SurplusListing.created_at) <= today)
+        .scalar() or Decimal("0")
+    )
+    if org_id:
+        waste_rows = (
+            db.session.query(func.coalesce(func.sum(SurplusListing.qty_kg), Decimal("0")))
+            .filter(SurplusListing.org_id == org_id, SurplusListing.review_status == "rejected", func.date(SurplusListing.created_at) >= current_month_start, func.date(SurplusListing.created_at) <= today)
+            .scalar() or Decimal("0")
+        )
+    waste_kg = float(waste_rows)
+    ratio = ((rescued_kg / (rescued_kg + waste_kg)) * 100) if (rescued_kg + waste_kg) else 0.0
+
+    return [
+        {
+            "label": "Kategori paling terbuang",
+            "value": waste_row.category_name if waste_row else "Belum ada",
+            "unit": "kategori",
+            "delta": "30 hari terakhir",
+            "delta_up": True,
+            "icon": "package",
+        },
+        {
+            "label": "Tren bulan ini",
+            "value": f"{trend_delta:+.0f}%",
+            "unit": "vs bulan lalu",
+            "delta": f"{current_month:.0f} kg",
+            "delta_up": trend_delta >= 0,
+            "icon": "leaf",
+        },
+        {
+            "label": "Rasio penyelamatan",
+            "value": f"{ratio:.0f}%",
+            "unit": "efektivitas",
+            "delta": "terselamatkan / total",
+            "delta_up": ratio >= 50,
+            "icon": "clipboard",
+        },
+    ]
+
+
 def get_daily_rescued_trend(days: int = 14, org_id: Optional[int] = None) -> dict[str, list[Any]]:
     """Aggregate approved daily rescued kilograms for the last N days."""
     today = date.today()

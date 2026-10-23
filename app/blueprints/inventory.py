@@ -44,6 +44,7 @@ def inventory_page() -> str:
     """Render the inventory table filtered by expiry status and search query."""
     active = request.args.get("status", "semua")
     search = request.args.get("q", "").strip()
+    page = max(1, int(request.args.get("page", "1") or 1))
 
     if active not in _STATUS_FILTERS:
         active = "semua"
@@ -51,10 +52,12 @@ def inventory_page() -> str:
     # Multi-tenant isolation: suppliers only see their own organization's stock
     org_id = current_user.org_id if current_user.role != "admin" else None
 
-    items = inventory_service.get_inventory_items(
+    items, pagination = inventory_service.get_inventory_items_paginated(
         org_id=org_id,
         status_filter=active,
         search_query=search if search else None,
+        page=page,
+        per_page=8,
     )
     kpis = inventory_service.get_inventory_kpis(org_id=org_id)
     categories = inventory_service.get_category_choices()
@@ -69,6 +72,7 @@ def inventory_page() -> str:
         active_filter=active,
         search_query=search,
         editing=request.args.get("edit"),
+        pagination=pagination,
     )
 
 

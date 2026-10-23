@@ -32,6 +32,16 @@
   {% for kpi in kpis %}{{ kpi_card(kpi) }}{% endfor %}
 </section>
 
+<section aria-label="Insight otomatis" class="mt-6 grid gap-4 md:grid-cols-3">
+  {% for insight in insights %}
+  <article class="card p-4">
+    <p class="text-xs font-semibold uppercase tracking-[0.12em] text-ink-muted">{{ insight.label }}</p>
+    <p class="mt-3 text-2xl font-bold text-ink">{{ insight.value }}</p>
+    <p class="mt-1 text-sm text-ink-muted">{{ insight.delta }}</p>
+  </article>
+  {% endfor %}
+</section>
+
 <section aria-label="Grafik dampak" class="mt-6 grid gap-5 md:grid-cols-2">
   <div class="md:col-span-2">{{ chart_card('Tren pasokan terselamatkan', 'chart-admin-trend', 'kg per hari, 14 hari terakhir') }}</div>
   {{ chart_card('Distribusi kategori', 'chart-admin-kategori', 'kg terselamatkan') }}
