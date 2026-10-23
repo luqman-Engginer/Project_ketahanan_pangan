@@ -6,6 +6,7 @@ from app.blueprints.export import bp as export_bp
 from app.blueprints.inventory import bp as inventory_bp
 from app.blueprints.main import bp as main_bp
 from app.blueprints.notification import bp as notification_bp
+from app.blueprints.public import bp as public_bp
 from app.blueprints.report import bp as report_bp
 from app.blueprints.surplus import bp as surplus_bp
 from app.blueprints.waste import bp as waste_bp
@@ -21,4 +22,5 @@ __all__ = [
     "notification_bp",
     "admin_bp",
     "events_bp",
+    "public_bp",
 ]

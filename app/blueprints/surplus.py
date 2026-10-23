@@ -149,9 +149,9 @@ def update_listing(listing_id: int) -> Response:
                 city_id=form.city_id.data,
                 notes=form.notes.data,
             )
-            flash("Pasokan diperbarui dan dikirim ulang untuk review.", "success")
         except (PermissionError, LookupError) as err:
             flash(str(err), "danger")
+            return redirect(url_for("surplus.surplus_board"))
     else:
         flash("Gagal memperbarui pasokan. Periksa formulir.", "danger")
     return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))

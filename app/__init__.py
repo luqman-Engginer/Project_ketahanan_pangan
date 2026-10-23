@@ -14,6 +14,7 @@ from app.blueprints import (
     inventory_bp,
     main_bp,
     notification_bp,
+    public_bp,
     report_bp,
     surplus_bp,
     waste_bp,
@@ -86,6 +87,7 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(notification_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(events_bp)
+    app.register_blueprint(public_bp)
 
 
 def _register_commands(app: Flask) -> None:
