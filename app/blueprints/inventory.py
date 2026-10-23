@@ -1,4 +1,4 @@
-﻿"""Inventory tracker routes: FEFO ordering, expiry badges, and stock monitoring."""
+"""Inventory tracker routes: FEFO ordering, expiry badges, and stock monitoring."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -23,7 +23,7 @@ _STATUS_FILTERS: dict[str, str] = {
 }
 
 
-def _require_donor_org() -> int:
+def _require_supplier_org() -> int:
     """Return the current supplier's organization id, or abort with 403.
 
     Returns:
@@ -48,7 +48,7 @@ def inventory_page() -> str:
     if active not in _STATUS_FILTERS:
         active = "semua"
 
-    # Multi-tenant isolation: donors only see their own organization's stock
+    # Multi-tenant isolation: suppliers only see their own organization's stock
     org_id = current_user.org_id if current_user.role != "admin" else None
 
     items = inventory_service.get_inventory_items(
@@ -78,7 +78,7 @@ def inventory_page() -> str:
 def create_item() -> Union[Response, tuple[dict[str, Any], int]]:
     """Record a new inventory stock item."""
     try:
-        org_id = _require_donor_org()
+        org_id = _require_supplier_org()
     except PermissionError as err:
         return jsonify(error=str(err)), 400
 
@@ -124,9 +124,9 @@ def create_item() -> Union[Response, tuple[dict[str, Any], int]]:
 @login_required
 @role_required("supplier")
 def update_item(item_id: int) -> Response:
-    """Update an inventory item owned by the current donor organization."""
+    """Update an inventory item owned by the current supplier organization."""
     try:
-        org_id = _require_donor_org()
+        org_id = _require_supplier_org()
     except PermissionError as err:
         flash(str(err), "danger")
         return redirect(url_for("inventory.inventory_page"))
@@ -157,9 +157,9 @@ def update_item(item_id: int) -> Response:
 @login_required
 @role_required("supplier")
 def delete_item(item_id: int) -> Response:
-    """Delete an inventory item owned by the current donor organization."""
+    """Delete an inventory item owned by the current supplier organization."""
     try:
-        org_id = _require_donor_org()
+        org_id = _require_supplier_org()
         inventory_service.delete_inventory_item(item_id=item_id, org_id=org_id)
         flash("Item inventory berhasil dihapus.", "success")
     except (PermissionError, LookupError) as err:
@@ -174,7 +174,7 @@ def delete_item(item_id: int) -> Response:
 def convert_to_surplus(item_id: int) -> Response:
     """Convert an expiring inventory stock item directly into a surplus food listing."""
     try:
-        org_id = _require_donor_org()
+        org_id = _require_supplier_org()
     except PermissionError as err:
         flash(str(err), "danger")
         return redirect(url_for("inventory.inventory_page"))
