@@ -1,0 +1,111 @@
+{# Reusable comments and discussion section for Pasokan listings #}
+{% macro comments_section(listing, post_url, can_comment=True) %}
+<section id="comments-section" class="card p-6" aria-labelledby="comments-heading">
+  <div class="flex items-center justify-between gap-3 border-b border-line pb-4">
+    <div class="flex items-center gap-2">
+      <h2 id="comments-heading" class="text-base font-semibold text-ink">Komentar &amp; Diskusi</h2>
+      <span class="rounded-full bg-primary-soft px-2.5 py-0.5 text-xs font-bold text-primary-700">
+        {{ listing.comments | length }}
+      </span>
+    </div>
+    <span class="text-xs text-ink-muted">Diskusi internal tim &amp; admin</span>
+  </div>
+
+  <div class="mt-4 space-y-4">
+    {% if listing.comments %}
+      {% for comment in listing.comments %}
+      <div class="rounded-2xl border border-line bg-surface p-4 transition-all hover:border-primary-300" id="comment-{{ comment.id }}">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="grid h-8 w-8 place-items-center rounded-full {% if comment.user_role == 'admin' %}bg-primary-700 text-white{% else %}bg-primary-soft text-primary-700{% endif %} text-xs font-bold">
+              {{ comment.user_name[:2] | upper }}
+            </span>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-ink">{{ comment.user_name }}</span>
+                {% if comment.user_role == 'admin' %}
+                <span class="rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-bold text-primary-700">Admin</span>
+                {% else %}
+                <span class="rounded-full bg-bg px-2 py-0.5 text-[10px] font-medium text-ink-muted">Supplier</span>
+                {% endif %}
+              </div>
+              <p class="text-[11px] text-ink-muted">{{ comment.created_at }}{% if comment.org_name %} · {{ comment.org_name }}{% endif %}</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-2.5 text-sm text-ink leading-relaxed whitespace-pre-line">{{ comment.body }}</p>
+
+        {% if can_comment %}
+        <div class="mt-3 flex items-center gap-2">
+          <button type="button" 
+                  onclick="const el = document.getElementById('reply-form-{{ comment.id }}'); el.classList.toggle('hidden');" 
+                  class="inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:text-primary-600 transition">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>
+            Balas
+          </button>
+        </div>
+
+        <form id="reply-form-{{ comment.id }}" method="post" action="{{ post_url }}" class="mt-3 hidden rounded-xl bg-bg p-3 border border-line">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="parent_id" value="{{ comment.id }}">
+          <label for="reply-body-{{ comment.id }}" class="sr-only">Balas komentar</label>
+          <textarea id="reply-body-{{ comment.id }}" name="body" rows="2" required maxlength="1000"
+                    placeholder="Tulis balasan untuk {{ comment.user_name }}..."
+                    class="input w-full text-xs"></textarea>
+          <div class="mt-2 flex justify-end gap-2">
+            <button type="button" onclick="document.getElementById('reply-form-{{ comment.id }}').classList.add('hidden')" class="btn btn-ghost btn-sm">Batal</button>
+            <button type="submit" class="btn btn-primary btn-sm">Kirim Balasan</button>
+          </div>
+        </form>
+        {% endif %}
+
+        {% if comment.replies %}
+        <div class="mt-3 pl-4 sm:pl-6 border-l-2 border-line space-y-3">
+          {% for reply in comment.replies %}
+          <div class="rounded-xl bg-bg/60 p-3 border border-line/60" id="comment-{{ reply.id }}">
+            <div class="flex items-center gap-2">
+              <span class="grid h-6 w-6 place-items-center rounded-full {% if reply.user_role == 'admin' %}bg-primary-700 text-white{% else %}bg-primary-soft text-primary-700{% endif %} text-[10px] font-bold">
+                {{ reply.user_name[:2] | upper }}
+              </span>
+              <span class="text-xs font-semibold text-ink">{{ reply.user_name }}</span>
+              {% if reply.user_role == 'admin' %}
+              <span class="rounded-full bg-primary-soft px-1.5 py-0.2 text-[9px] font-bold text-primary-700">Admin</span>
+              {% else %}
+              <span class="rounded-full bg-surface px-1.5 py-0.2 text-[9px] font-medium text-ink-muted">Supplier</span>
+              {% endif %}
+              <span class="text-[10px] text-ink-muted">· {{ reply.created_at }}</span>
+            </div>
+            <p class="mt-1.5 text-xs text-ink leading-relaxed whitespace-pre-line">{{ reply.body }}</p>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="rounded-2xl border border-dashed border-line bg-bg/50 p-6 text-center">
+        <svg class="mx-auto h-8 w-8 text-ink-muted/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <p class="mt-2 text-sm font-medium text-ink">Belum ada diskusi untuk pasokan ini</p>
+        <p class="text-xs text-ink-muted">Gunakan kolom di bawah untuk memberi catatan atau berkoordinasi.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if can_comment %}
+  <form method="post" action="{{ post_url }}" class="mt-5 border-t border-line pt-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="new-comment-body" class="mb-1.5 block text-sm font-semibold text-ink">Tulis Komentar / Catatan</label>
+    <textarea id="new-comment-body" name="body" rows="3" required maxlength="1000"
+              placeholder="Tuliskan komentar atau instruksi untuk pasokan ini..."
+              class="input w-full"></textarea>
+    <div class="mt-3 flex justify-end">
+      <button type="submit" class="btn btn-primary">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Kirim Komentar
+      </button>
+    </div>
+  </form>
+  {% endif %}
+</section>
+{% endmacro %}

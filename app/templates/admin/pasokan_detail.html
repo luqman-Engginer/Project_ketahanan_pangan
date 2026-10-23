@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Review {{ listing.title }} — FoodLoop ID{% endblock %}
 {% from "components/status_badge.html" import status_badge %}
+{% from "components/comments_section.html" import comments_section %}
 
 {% block content %}
 <nav class="mb-5 flex flex-wrap items-center gap-2 text-sm text-ink-muted" aria-label="Breadcrumb">
@@ -35,6 +36,8 @@
     </section>
 
     {% include "admin/_review_row.html" %}
+
+    {{ comments_section(listing, url_for('admin.add_comment', listing_id=listing.id), can_comment=True) }}
   </div>
 
   <aside class="lg:col-span-1">

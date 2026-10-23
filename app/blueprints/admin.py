@@ -214,3 +214,25 @@ def audit_logs() -> Union[str, Response]:
     if request.is_json:
         return jsonify(logs=logs)
     return render_template("admin/audit_logs.html", logs=logs)
+
+
+@bp.post("/pasokan/<int:listing_id>/komentar")
+@bp.post("/pasokan/<int:listing_id>/comments")
+@login_required
+@role_required("admin")
+def add_comment(listing_id: int) -> Response:
+    """Post an administrator review comment or reply on any listing."""
+    body = request.form.get("body", "")
+    parent_id_raw = request.form.get("parent_id")
+    parent_id = int(parent_id_raw) if parent_id_raw and parent_id_raw.isdigit() else None
+    try:
+        surplus_service.add_comment(
+            listing_id=listing_id,
+            user=current_user,
+            body=body,
+            parent_id=parent_id,
+        )
+        flash("Komentar admin berhasil dikirim.", "success")
+    except (PermissionError, LookupError, ValueError) as err:
+        flash(str(err), "danger")
+    return redirect(url_for("admin.pasokan_detail", listing_id=listing_id))

@@ -170,3 +170,24 @@ def delete_listing(listing_id: int) -> Response:
     except (PermissionError, LookupError, ValueError) as err:
         flash(str(err), "danger")
         return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))
+
+
+@bp.post("/<int:listing_id>/komentar")
+@bp.post("/<int:listing_id>/comments")
+@login_required
+def add_comment(listing_id: int) -> Response:
+    """Post a comment or reply on a pasokan listing."""
+    body = request.form.get("body", "")
+    parent_id_raw = request.form.get("parent_id")
+    parent_id = int(parent_id_raw) if parent_id_raw and parent_id_raw.isdigit() else None
+    try:
+        surplus_service.add_comment(
+            listing_id=listing_id,
+            user=current_user,
+            body=body,
+            parent_id=parent_id,
+        )
+        flash("Komentar berhasil dikirim.", "success")
+    except (PermissionError, LookupError, ValueError) as err:
+        flash(str(err), "danger")
+    return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))

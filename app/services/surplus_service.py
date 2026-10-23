@@ -8,7 +8,7 @@ from typing import Any, Optional
 from sqlalchemy import or_
 
 from app.extensions import db
-from app.models import City, FoodCategory, Organization, SurplusListing
+from app.models import City, Comment, FoodCategory, Organization, SurplusListing
 from app.services import audit_service, realtime
 
 REVIEW_LABELS = {"pending": "Menunggu review", "approved": "Disetujui", "rejected": "Ditolak"}
@@ -128,7 +128,7 @@ def get_surplus_detail(listing_id: int, org_id: Optional[int] = None) -> Optiona
         "created_at": item.created_at.strftime("%d %b %Y, %H:%M"),
         "notes": item.notes,
         "description": item.notes or "Pasokan pangan surplus dari supplier.",
-        "comments": [],
+        "comments": get_listing_comments(item.id),
     }
 
 
@@ -265,3 +265,69 @@ def get_city_options() -> list[dict[str, Any]]:
     """Return all cities as id/label pairs."""
     rows = db.session.query(City.id, City.name).order_by(City.name.asc()).all()
     return [{"id": city_id, "name": name} for city_id, name in rows]
+
+
+def get_listing_comments(listing_id: int) -> list[dict[str, Any]]:
+    """Retrieve top-level comments and nested replies for a surplus listing."""
+    root_comments = (
+        db.session.query(Comment)
+        .filter(Comment.listing_id == listing_id, Comment.parent_id.is_(None))
+        .order_by(Comment.created_at.asc())
+        .all()
+    )
+
+    def _format(c: Comment) -> dict[str, Any]:
+        return {
+            "id": c.id,
+            "user_id": c.user_id,
+            "user_name": c.user.name if c.user else "Pengguna",
+            "user_role": c.user.role if c.user else "supplier",
+            "org_name": c.user.organization.name if (c.user and c.user.organization) else None,
+            "body": c.body,
+            "created_at": c.created_at.strftime("%d %b %Y, %H:%M WIB"),
+            "replies": [_format(r) for r in sorted(c.replies, key=lambda x: x.created_at)],
+        }
+
+    return [_format(c) for c in root_comments]
+
+
+def add_comment(
+    listing_id: int,
+    user: Any,
+    body: str,
+    parent_id: Optional[int] = None,
+) -> Comment:
+    """Post a comment or reply on a pasokan listing.
+
+    Admin users may comment on any listing. Suppliers may only comment on
+    listings owned by their own organization.
+    """
+    listing = db.session.get(SurplusListing, listing_id)
+    if listing is None:
+        raise LookupError("Pasokan tidak ditemukan.")
+
+    user_role = getattr(user, "role", None)
+    user_org_id = getattr(user, "org_id", None)
+    if user_role != "admin":
+        if user_org_id != listing.org_id:
+            raise PermissionError("Supplier hanya dapat memberi komentar pada pasokan miliknya sendiri.")
+
+    clean_body = (body or "").strip()
+    if not clean_body:
+        raise ValueError("Isi komentar tidak boleh kosong.")
+
+    if parent_id is not None:
+        parent = db.session.get(Comment, parent_id)
+        if parent is None or parent.listing_id != listing_id:
+            raise LookupError("Komentar yang dibalas tidak ditemukan.")
+
+    comment = Comment(
+        listing_id=listing_id,
+        user_id=user.id,
+        body=clean_body,
+        parent_id=parent_id,
+    )
+    db.session.add(comment)
+    db.session.commit()
+    audit_service.log_action("COMMENT_ADDED", "surplus_listing", listing_id)
+    return comment
