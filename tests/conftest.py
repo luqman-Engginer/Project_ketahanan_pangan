@@ -13,7 +13,6 @@ from app.config import TestConfig
 from app.extensions import db
 from app.models import (
     City,
-    Claim,
     FoodCategory,
     ImpactFactor,
     InventoryItem,
