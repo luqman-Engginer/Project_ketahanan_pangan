@@ -66,11 +66,11 @@ def _seed_master_data() -> None:
     db.session.commit()
 
 
-def make_org(name: str, org_type: str, city_id: int = 3273, verified: bool = True) -> Organization:
+def make_org(name: str, org_type: str = "supplier", city_id: int = 3273, verified: bool = True) -> Organization:
     """Create and persist an organization."""
     org = Organization(
         name=name,
-        type=org_type,
+        type="supplier",
         city_id=city_id,
         address="Jl. Uji No. 1",
         phone="08123456789",
@@ -90,7 +90,7 @@ def make_user(email: str, role: str, org_id: int | None = None, password: str = 
     return user
 
 
-def make_listing(org: Organization, status: str = "available", qty_kg: str = "10") -> SurplusListing:
+def make_listing(org: Organization, status: str = "available", qty_kg: str = "10", review_status: str = "pending") -> SurplusListing:
     """Create and persist a surplus listing."""
     listing = SurplusListing(
         org_id=org.id,
@@ -103,15 +103,16 @@ def make_listing(org: Organization, status: str = "available", qty_kg: str = "10
         city_id=org.city_id,
         notes="Catatan uji",
         status=status,
+        review_status=review_status,
     )
     db.session.add(listing)
     db.session.commit()
     return listing
 
 
-def _new_client(app: Any, email: str, role: str, org_name: str, org_type: str):
+def _new_client(app: Any, email: str, role: str, org_name: str):
     """Create an organization, user, and an independently logged-in test client."""
-    org = make_org(org_name, org_type)
+    org = make_org(org_name)
     make_user(email, role, org.id)
     new_client = app.test_client()
     resp = new_client.post("/login", data={"email": email, "password": "rahasia123"})
@@ -120,12 +121,16 @@ def _new_client(app: Any, email: str, role: str, org_name: str, org_type: str):
 
 
 @pytest.fixture()
-def donor_client(app: Any):
-    """Return a logged-in donor test client plus its organization."""
-    return _new_client(app, "donor@uji.id", "donor", "Donor Uji", "donor")
+def supplier_client(app: Any):
+    """Return a logged-in supplier test client plus its organization."""
+    return _new_client(app, "supplier@uji.id", "supplier", "Supplier Uji")
 
 
 @pytest.fixture()
-def receiver_client(app: Any):
-    """Return a logged-in receiver test client plus its organization."""
-    return _new_client(app, "receiver@uji.id", "receiver", "Penerima Uji", "receiver")
+def admin_client(app: Any):
+    """Return a logged-in admin test client (no org)."""
+    make_user("admin@uji.id", "admin", None)
+    c = app.test_client()
+    resp = c.post("/login", data={"email": "admin@uji.id", "password": "rahasia123"})
+    assert resp.status_code == 302, "admin login failed"
+    return c

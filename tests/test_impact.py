@@ -9,11 +9,10 @@ from app.extensions import db
 from app.models import SurplusListing
 from app.services import impact
 from tests.conftest import make_org
-from app.models import City, ImpactFactor, Organization
 
 
-def _make_picked_listing(org, category_id: int, qty_kg: str, created: datetime) -> SurplusListing:
-    """Insert a picked-up listing with an explicit creation timestamp."""
+def _make_approved_listing(org, category_id: int, qty_kg: str, created: datetime) -> SurplusListing:
+    """Insert an approved listing with an explicit creation timestamp."""
     listing = SurplusListing(
         org_id=org.id,
         category_id=category_id,
@@ -23,7 +22,8 @@ def _make_picked_listing(org, category_id: int, qty_kg: str, created: datetime) 
         qty_kg=Decimal(qty_kg),
         pickup_before=created + timedelta(hours=6),
         city_id=org.city_id,
-        status="picked_up",
+        status="available",
+        review_status="approved",
         created_at=created,
     )
     db.session.add(listing)
@@ -33,9 +33,9 @@ def _make_picked_listing(org, category_id: int, qty_kg: str, created: datetime) 
 
 def test_kpis_computed_via_sql(app: Any) -> None:
     """kg, rupiah, meals, and CO2e follow the PRD formulas."""
-    org = make_org("Donor KPI", "donor")
-    _make_picked_listing(org, 1, "10", datetime.utcnow())
-    _make_picked_listing(org, 3, "5", datetime.utcnow())
+    org = make_org("Supplier KPI")
+    _make_approved_listing(org, 1, "10", datetime.utcnow())
+    _make_approved_listing(org, 3, "5", datetime.utcnow())
 
     kpis = impact.calculate_impact_kpis()
     # 10*35000 + 5*28000 = 490000
@@ -46,14 +46,14 @@ def test_kpis_computed_via_sql(app: Any) -> None:
     assert float(kpis["co2e_avoided"]) == 31.0
 
 
-def test_impact_only_counts_picked_up(app: Any) -> None:
-    """Available or claimed listings do not count toward impact."""
-    org = make_org("Donor Status", "donor")
-    _make_picked_listing(org, 1, "10", datetime.utcnow())
+def test_impact_only_counts_approved(app: Any) -> None:
+    """Pending or rejected listings do not count toward impact."""
+    org = make_org("Supplier Status")
+    _make_approved_listing(org, 1, "10", datetime.utcnow())
     from tests.conftest import make_listing
 
-    make_listing(org, status="available", qty_kg="99")
-    make_listing(org, status="claimed", qty_kg="99")
+    make_listing(org, status="available", qty_kg="99", review_status="pending")
+    make_listing(org, status="available", qty_kg="99", review_status="rejected")
 
     kpis = impact.calculate_impact_kpis()
     assert float(kpis["kg_saved"]) == 10.0
@@ -61,10 +61,10 @@ def test_impact_only_counts_picked_up(app: Any) -> None:
 
 def test_kpis_respect_date_and_org_filters(app: Any) -> None:
     """Date range and org filters scope the aggregation."""
-    org = make_org("Donor Filter KPI", "donor")
+    org = make_org("Supplier Filter KPI")
     old = datetime.utcnow() - timedelta(days=60)
-    _make_picked_listing(org, 1, "10", datetime.utcnow())
-    _make_picked_listing(org, 1, "7", old)
+    _make_approved_listing(org, 1, "10", datetime.utcnow())
+    _make_approved_listing(org, 1, "7", old)
 
     recent = impact.calculate_impact_kpis(start_date=date.today() - timedelta(days=7))
     assert float(recent["kg_saved"]) == 10.0
@@ -74,9 +74,9 @@ def test_kpis_respect_date_and_org_filters(app: Any) -> None:
 
 
 def test_monthly_trend_aggregates_in_sql(app: Any) -> None:
-    """Monthly trend groups picked-up kilograms by month."""
-    org = make_org("Donor Trend", "donor")
-    _make_picked_listing(org, 1, "8", datetime.utcnow())
+    """Monthly trend groups approved kilograms by month."""
+    org = make_org("Supplier Trend")
+    _make_approved_listing(org, 1, "8", datetime.utcnow())
     trend = impact.get_monthly_rescued_trend(months=6)
     assert len(trend["labels"]) == 6
     assert trend["values"][-1] == 8.0
@@ -84,8 +84,8 @@ def test_monthly_trend_aggregates_in_sql(app: Any) -> None:
 
 def test_public_impact_api_returns_aggregates(client: Any, app: Any) -> None:
     """The open-data endpoint returns the aggregated JSON payload."""
-    org = make_org("Donor API", "donor")
-    _make_picked_listing(org, 1, "20", datetime.utcnow())
+    org = make_org("Supplier API")
+    _make_approved_listing(org, 1, "20", datetime.utcnow())
 
     resp = client.get("/api/public/impact")
     assert resp.status_code == 200

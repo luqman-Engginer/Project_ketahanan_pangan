@@ -9,11 +9,11 @@ from app.services import surplus_service
 from tests.conftest import make_listing, make_user
 
 
-def test_donor_can_create_listing(donor_client: Any, app: Any) -> None:
-    """A donor can publish a surplus listing through the form."""
-    client, org = donor_client
+def test_supplier_can_create_listing(supplier_client: Any, app: Any) -> None:
+    """A supplier can publish a surplus listing through the form."""
+    client, org = supplier_client
     resp = client.post(
-        "/surplus/",
+        "/supplier/pasokan/",
         data={
             "category_id": "1",
             "title": "Nasi Kotak Uji",
@@ -29,17 +29,17 @@ def test_donor_can_create_listing(donor_client: Any, app: Any) -> None:
     listing = SurplusListing.query.filter_by(title="Nasi Kotak Uji").first()
     assert listing is not None
     assert listing.org_id == org.id
-    assert listing.status == "available"
+    assert listing.review_status == "pending"
 
 
-def test_donor_cannot_update_other_org_listing(donor_client: Any, app: Any) -> None:
-    """A donor may not modify a listing owned by another organization."""
-    client, org = donor_client
+def test_supplier_cannot_update_other_org_listing(supplier_client: Any, app: Any) -> None:
+    """A supplier may not modify a listing owned by another organization."""
+    client, org = supplier_client
     other_org = make_org_other()
     other_listing = make_listing(other_org)
 
     resp = client.post(
-        f"/surplus/{other_listing.id}/update",
+        f"/supplier/pasokan/{other_listing.id}/update",
         data={
             "category_id": "1",
             "title": "Dibajak",
@@ -60,7 +60,7 @@ def test_search_filters_by_title(app: Any) -> None:
     """Search query filters listings by title or notes."""
     from tests.conftest import make_org
 
-    org = make_org("Donor Search", "donor")
+    org = make_org("Supplier Search")
     make_listing(org)
     result = surplus_service.get_surplus_listings(search_query="otomatis")
     assert len(result) == 1
@@ -71,7 +71,7 @@ def test_search_filters_by_category_and_city(app: Any) -> None:
     """Category and city filters narrow the result set."""
     from tests.conftest import make_org
 
-    org = make_org("Donor Filter", "donor")
+    org = make_org("Supplier Filter")
     make_listing(org)
     assert len(surplus_service.get_surplus_listings(category_name="Makanan Siap Santap")) == 1
     assert len(surplus_service.get_surplus_listings(city_name="Bandung")) == 1
@@ -82,13 +82,13 @@ def test_comment_requires_login_and_persists(client: Any, app: Any) -> None:
     """Comments require authentication and are stored on the listing."""
     from tests.conftest import make_org
 
-    org = make_org("Donor Comment", "donor")
+    org = make_org("Supplier Comment")
     listing = make_listing(org)
-    assert client.post(f"/surplus/{listing.id}/komentar", data={"body": "anon"}).status_code == 302
+    assert client.post(f"/supplier/pasokan/{listing.id}/komentar", data={"body": "anon"}).status_code == 302
 
-    user = make_user("commenter@uji.id", "receiver", org.id)
+    user = make_user("commenter@uji.id", "supplier", org.id)
     client.post("/login", data={"email": "commenter@uji.id", "password": "rahasia123"})
-    resp = client.post(f"/surplus/{listing.id}/komentar", data={"body": "Bisa diambil sore?"})
+    resp = client.post(f"/supplier/pasokan/{listing.id}/komentar", data={"body": "Bisa diambil sore?"})
     assert resp.status_code == 302
 
     comment = Comment.query.filter_by(listing_id=listing.id).first()
@@ -101,4 +101,4 @@ def make_org_other():
     """Helper creating a distinct organization for isolation checks."""
     from tests.conftest import make_org
 
-    return make_org("Org Lain", "donor")
+    return make_org("Org Lain")

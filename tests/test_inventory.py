@@ -9,11 +9,11 @@ from app.models import InventoryItem
 from tests.conftest import make_org
 
 
-def test_donor_can_create_inventory_item(donor_client: Any, app: Any) -> None:
-    """A donor records a stock item bound to its own organization."""
-    client, org = donor_client
+def test_supplier_can_create_inventory_item(supplier_client: Any, app: Any) -> None:
+    """A supplier records a stock item bound to its own organization."""
+    client, org = supplier_client
     resp = client.post(
-        "/inventory/",
+        "/supplier/stok/",
         data={
             "name": "Beras Premium",
             "category_id": "1",
@@ -30,10 +30,10 @@ def test_donor_can_create_inventory_item(donor_client: Any, app: Any) -> None:
     assert item.org_id == org.id
 
 
-def test_inventory_listing_is_org_scoped(donor_client: Any, app: Any) -> None:
-    """A donor does not see another organization's stock."""
-    client, org = donor_client
-    other = make_org("Donor Lain", "donor")
+def test_inventory_listing_is_org_scoped(supplier_client: Any, app: Any) -> None:
+    """A supplier does not see another organization's stock."""
+    client, org = supplier_client
+    other = make_org("Supplier Lain")
     db.session.add(
         InventoryItem(
             org_id=other.id,
@@ -46,14 +46,14 @@ def test_inventory_listing_is_org_scoped(donor_client: Any, app: Any) -> None:
     )
     db.session.commit()
 
-    resp = client.get("/inventory/")
+    resp = client.get("/supplier/stok/")
     assert b"Barang Lain" not in resp.data
 
 
-def test_update_and_delete_require_ownership(donor_client: Any, app: Any) -> None:
+def test_update_and_delete_require_ownership(supplier_client: Any, app: Any) -> None:
     """Updating or deleting another org's item does not mutate it."""
-    client, org = donor_client
-    other = make_org("Donor Asing", "donor")
+    client, org = supplier_client
+    other = make_org("Supplier Asing")
     item = InventoryItem(
         org_id=other.id,
         category_id=1,
@@ -66,7 +66,7 @@ def test_update_and_delete_require_ownership(donor_client: Any, app: Any) -> Non
     db.session.commit()
 
     client.post(
-        f"/inventory/{item.id}/update",
+        f"/supplier/stok/{item.id}/update",
         data={
             "name": "Diretas",
             "category_id": "1",
@@ -77,7 +77,7 @@ def test_update_and_delete_require_ownership(donor_client: Any, app: Any) -> Non
         },
         follow_redirects=True,
     )
-    client.post(f"/inventory/{item.id}/delete", follow_redirects=True)
+    client.post(f"/supplier/stok/{item.id}/delete", follow_redirects=True)
     db.session.refresh(item)
     assert item.name == "Milik Lain"
     assert InventoryItem.query.get(item.id) is not None
