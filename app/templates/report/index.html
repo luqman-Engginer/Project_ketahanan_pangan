@@ -6,24 +6,24 @@
 {% block content %}
 <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
   <div>
-    <h1 class="text-2xl font-bold text-ink">Laporan Dampak</h1>
-    <p class="mt-1 text-sm text-ink-muted">Filter rentang tanggal, pratinjau rekap, lalu ekspor laporan.</p>
+    <h1 class="text-2xl font-bold text-ink">{{ 'Laporan Dampak Platform' if role == 'admin' else 'Laporan Dampak Saya' }}</h1>
+    <p class="mt-1 text-sm text-ink-muted">{{ 'Data seluruh supplier yang telah disetujui admin.' if role == 'admin' else 'Data pasokan organisasi Anda yang telah disetujui admin.' }}</p>
   </div>
   <div class="flex flex-wrap gap-2">
     <a class="btn btn-secondary"
-       href="{{ url_for('export.export_report', format='pdf', start=start or none, end=end or none, city_id=city_id) }}"
+       href="{{ url_for(export_endpoint, format='pdf', start=start or none, end=end or none, city_id=city_id if role == 'admin' else none) }}"
        title="Unduh laporan dampak dalam format PDF">
       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       PDF
     </a>
     <a class="btn btn-secondary"
-       href="{{ url_for('export.export_report', format='xlsx', start=start or none, end=end or none, city_id=city_id) }}"
+       href="{{ url_for(export_endpoint, format='xlsx', start=start or none, end=end or none, city_id=city_id if role == 'admin' else none) }}"
        title="Unduh rekap dan data dalam format Excel">
       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       XLSX
     </a>
     <a class="btn btn-secondary"
-       href="{{ url_for('export.export_report', format='csv', start=start or none, end=end or none, city_id=city_id) }}"
+       href="{{ url_for(export_endpoint, format='csv', start=start or none, end=end or none, city_id=city_id if role == 'admin' else none) }}"
        title="Unduh rekap harian dalam format CSV">
       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       CSV
@@ -31,7 +31,7 @@
   </div>
 </div>
 
-<form method="get" action="{{ url_for('report.report_page') }}" class="card p-5">
+<form method="get" action="{{ url_for('report.supplier_report' if role == 'supplier' else 'report.admin_report') }}" class="card p-5">
   <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
     <div>
       <label for="start" class="mb-1.5 block text-sm font-medium text-ink">Dari tanggal</label>
@@ -41,24 +41,24 @@
       <label for="end" class="mb-1.5 block text-sm font-medium text-ink">Sampai tanggal</label>
       <input id="end" name="end" type="date" class="input" value="{{ end }}">
     </div>
+    {% if role == 'admin' %}
     <div>
       <label for="city_id" class="mb-1.5 block text-sm font-medium text-ink">Wilayah</label>
       <select id="city_id" name="city_id" class="input">
         <option value="">Semua kota</option>
-        {% for city in cities %}
-        <option value="{{ city.id }}" {{ 'selected' if city_id == city.id }}>{{ city.name }} — {{ city.province }}</option>
-        {% endfor %}
+        {% for city in cities %}<option value="{{ city.id }}" {{ 'selected' if city_id == city.id }}>{{ city.name }} — {{ city.province }}</option>{% endfor %}
       </select>
     </div>
+    {% endif %}
     <div class="flex flex-wrap gap-2">
       {% for p in presets %}
-      <a href="{{ url_for('report.report_page', preset=p.key, start=p.start, end=p.end, city_id=city_id) }}"
+      <a href="{{ url_for('report.supplier_report' if role == 'supplier' else 'report.admin_report', preset=p.key, start=p.start, end=p.end, city_id=city_id if role == 'admin' else none) }}"
          class="chip {{ 'chip-active' if active_preset == p.key }}">{{ p.label }}</a>
       {% endfor %}
     </div>
     <div class="flex gap-2">
       <button type="submit" class="btn btn-primary flex-1">Terapkan filter</button>
-      <a href="{{ url_for('report.report_page') }}" class="btn btn-ghost">Reset</a>
+      <a href="{{ url_for('report.supplier_report' if role == 'supplier' else 'report.admin_report') }}" class="btn btn-ghost">Reset</a>
     </div>
   </div>
 </form>
@@ -78,7 +78,7 @@
     {'key': 'tanggal', 'label': 'Tanggal'},
     {'key': 'kg_diselamatkan', 'label': 'Terselamatkan (kg)'},
     {'key': 'kg_terbuang', 'label': 'Terbuang (kg)'},
-    {'key': 'klaim', 'label': 'Klaim'},
+    {'key': 'pasokan', 'label': 'Pasokan'},
     {'key': 'rupiah', 'label': 'Nilai dampak'}
   ] %}
   {{ data_table(rekap_columns, rekap, 'Belum ada rekap',

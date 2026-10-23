@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, PasswordField, SelectField, StringField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
+from wtforms.validators import DataRequired, Email, EqualTo, Length, Optional as OptionalValidator
 
 
 class LoginForm(FlaskForm):
@@ -27,14 +27,22 @@ class RegisterForm(FlaskForm):
         "Nama Lengkap / Organisasi",
         validators=[DataRequired(message="Nama wajib diisi."), Length(min=3, max=100)],
     )
-    role = SelectField(
-        "Saya mendaftar sebagai",
-        choices=[("receiver", "Penerima Manfaat"), ("donor", "Donor Pangan")],
-        validators=[DataRequired(message="Pilih peran Anda.")],
-    )
     email = StringField(
         "Email",
         validators=[DataRequired(message="Email wajib diisi."), Email(message="Format email tidak valid.")],
+    )
+    city_id = SelectField(
+        "Kota Operasional",
+        coerce=int,
+        validators=[DataRequired(message="Kota operasional wajib dipilih.")],
+    )
+    address = StringField(
+        "Alamat",
+        validators=[OptionalValidator(), Length(max=255, message="Alamat maksimal 255 karakter.")],
+    )
+    phone = StringField(
+        "Nomor Telepon",
+        validators=[OptionalValidator(), Length(max=30, message="Nomor telepon maksimal 30 karakter.")],
     )
     password = PasswordField(
         "Kata Sandi",

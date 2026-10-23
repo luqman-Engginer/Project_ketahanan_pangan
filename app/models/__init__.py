@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from app.models.activity import AuditLog, Comment, Notification
 from app.models.food import (
-    Claim,
     FoodCategory,
     ImpactFactor,
     InventoryItem,
@@ -22,7 +21,6 @@ __all__ = [
     "FoodCategory",
     "InventoryItem",
     "SurplusListing",
-    "Claim",
     "WasteLog",
     "ImpactFactor",
     "Comment",

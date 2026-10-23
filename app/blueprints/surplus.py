@@ -1,4 +1,4 @@
-"""Surplus board routes: browse, filter, detail views, and discussion comments."""
+"""Supplier surplus listing routes."""
 from __future__ import annotations
 
 from typing import Any, Union
@@ -6,109 +6,88 @@ from typing import Any, Union
 from flask import Blueprint, Response, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
-from app.forms.activity import CommentForm
 from app.forms.surplus import SurplusListingForm
-from app.schemas.payloads import CommentCreateSchema, SurplusListingCreateSchema
+from app.schemas.payloads import SurplusListingCreateSchema
 from app.services import surplus_service
 from app.utils.decorators import role_required
 
-bp: Blueprint = Blueprint("surplus", __name__, url_prefix="/surplus")
+bp: Blueprint = Blueprint("surplus", __name__, url_prefix="/supplier/pasokan")
 
 
-def _require_donor_org() -> int:
-    """Return the current donor's organization id.
-
-    Returns:
-        Organization id bound to the current user.
-
-    Raises:
-        PermissionError: If the user has no linked organization.
-    """
+def _require_supplier_org() -> int:
+    """Return the current supplier's organization id or abort with 403."""
     if not current_user.org_id:
-        raise PermissionError("User tidak terhubung dengan organisasi donor.")
+        abort(403, description="Akun Anda belum terhubung dengan organisasi supplier.")
     return current_user.org_id
 
 
 @bp.get("/")
+@login_required
+@role_required("supplier")
 def surplus_board() -> str:
-    """Render the surplus board with server-side search and filter queries."""
+    """Render the supplier's own pasokan list."""
+    org_id = _require_supplier_org()
     search = request.args.get("q", "").strip()
     category = request.args.get("category", "").strip()
     city = request.args.get("city", "").strip()
     status = request.args.get("status", "").strip()
-
     listings = surplus_service.get_surplus_listings(
-        search_query=search if search else None,
-        category_name=category if category else None,
-        city_name=city if city else None,
-        status_filter=status if status else None,
+        org_id=org_id,
+        search_query=search or None,
+        category_name=category or None,
+        city_name=city or None,
+        review_status=status or None,
     )
-    categories = surplus_service.get_category_options()
-    cities = surplus_service.get_city_options()
-
     return render_template(
         "surplus/board.html",
         listings=listings,
-        categories=categories,
-        cities=cities,
+        categories=surplus_service.get_category_options(),
+        cities=surplus_service.get_city_options(),
         search_query=search,
         selected_category=category,
         selected_city=city,
         selected_status=status or "semua",
-        can_create=current_user.is_authenticated and current_user.role in {"donor", "admin"},
+        can_create=True,
         create_form=SurplusListingForm(),
+        mode="supplier",
     )
 
 
 @bp.get("/<int:listing_id>")
+@login_required
+@role_required("supplier")
 def surplus_detail(listing_id: int) -> str:
-    """Render one surplus listing detail page with live discussions."""
-    listing = surplus_service.get_surplus_detail(listing_id)
+    """Render one of the supplier's own listings."""
+    org_id = _require_supplier_org()
+    listing = surplus_service.get_surplus_detail(listing_id, org_id=org_id)
     if listing is None:
         abort(404)
-
-    is_owner = (
-        current_user.is_authenticated
-        and current_user.org_id is not None
-        and current_user.org_id == listing["donor_id"]
-    )
-    can_manage = current_user.is_authenticated and (is_owner or current_user.role == "admin")
-
-    comment_form = CommentForm()
-    edit_form = SurplusListingForm() if can_manage else None
-    if edit_form is not None:
-        edit_form.title.data = listing["title"]
-        edit_form.qty.data = listing["qty"]
-        edit_form.unit.data = listing["unit"]
-        edit_form.qty_kg.data = listing["qty_kg"]
-        edit_form.pickup_before.data = listing["raw_pickup_before"]
-        edit_form.city_id.data = listing["city_id"]
-        edit_form.category_id.data = listing["category_id"]
-        edit_form.notes.data = listing["notes"]
-
+    edit_form = SurplusListingForm()
+    edit_form.title.data = listing["title"]
+    edit_form.qty.data = listing["qty"]
+    edit_form.unit.data = listing["unit"]
+    edit_form.qty_kg.data = listing["qty_kg"]
+    edit_form.pickup_before.data = listing["raw_pickup_before"]
+    edit_form.city_id.data = listing["city_id"]
+    edit_form.category_id.data = listing["category_id"]
+    edit_form.notes.data = listing["notes"]
     return render_template(
         "surplus/detail.html",
         listing=listing,
-        comments=listing["comments"],
-        comment_form=comment_form,
-        can_manage=can_manage,
+        can_manage=True,
         edit_form=edit_form,
-        categories=surplus_service.get_category_options() if can_manage else [],
-        cities=surplus_service.get_city_options() if can_manage else [],
+        categories=surplus_service.get_category_options(),
+        cities=surplus_service.get_city_options(),
+        mode="supplier",
     )
 
 
 @bp.post("/")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def create_listing() -> Union[Response, tuple[dict[str, Any], int]]:
-    """Publish a new surplus food listing."""
-    try:
-        org_id = _require_donor_org()
-    except PermissionError as err:
-        return jsonify(error=str(err)), 400
-
-    # Handle JSON API request
+    """Publish a new pending pasokan listing."""
+    org_id = _require_supplier_org()
     if request.is_json:
         try:
             payload = SurplusListingCreateSchema(**request.get_json())
@@ -124,7 +103,7 @@ def create_listing() -> Union[Response, tuple[dict[str, Any], int]]:
                 notes=payload.notes,
                 actor_user_id=current_user.id,
             )
-            return jsonify(message="Listing surplus berhasil dibuat", id=listing.id), 201
+            return jsonify(message="Pasokan berhasil dikirim untuk review", id=listing.id, review_status=listing.review_status), 201
         except Exception as err:
             return jsonify(error=str(err)), 400
 
@@ -142,24 +121,19 @@ def create_listing() -> Union[Response, tuple[dict[str, Any], int]]:
             notes=form.notes.data,
             actor_user_id=current_user.id,
         )
-        flash("Listing surplus berhasil dipublikasikan!", "success")
+        flash("Pasokan berhasil dikirim dan menunggu review admin.", "success")
         return redirect(url_for("surplus.surplus_detail", listing_id=listing.id))
 
-    flash("Gagal mempublikasikan surplus. Silakan periksa formulir.", "danger")
+    flash("Gagal mengirim pasokan. Silakan periksa formulir.", "danger")
     return redirect(url_for("surplus.surplus_board"))
 
 
 @bp.post("/<int:listing_id>/update")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def update_listing(listing_id: int) -> Response:
-    """Update a surplus listing owned by the current donor organization."""
-    try:
-        org_id = _require_donor_org()
-    except PermissionError as err:
-        flash(str(err), "danger")
-        return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))
-
+    """Update an owned listing and reset its review status to pending."""
+    org_id = _require_supplier_org()
     form = SurplusListingForm()
     if form.validate_on_submit():
         try:
@@ -175,66 +149,24 @@ def update_listing(listing_id: int) -> Response:
                 city_id=form.city_id.data,
                 notes=form.notes.data,
             )
-            flash("Listing surplus berhasil diperbarui.", "success")
+            flash("Pasokan diperbarui dan dikirim ulang untuk review.", "success")
         except (PermissionError, LookupError) as err:
             flash(str(err), "danger")
     else:
-        flash("Gagal memperbarui surplus. Silakan periksa formulir.", "danger")
-
+        flash("Gagal memperbarui pasokan. Periksa formulir.", "danger")
     return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))
 
 
 @bp.post("/<int:listing_id>/delete")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def delete_listing(listing_id: int) -> Response:
-    """Delete a surplus listing owned by the current donor organization."""
+    """Delete an owned listing that has not been approved."""
+    org_id = _require_supplier_org()
     try:
-        org_id = _require_donor_org()
         surplus_service.delete_surplus_listing(listing_id=listing_id, org_id=org_id)
-        flash("Listing surplus berhasil dihapus.", "success")
+        flash("Pasokan berhasil dihapus.", "success")
         return redirect(url_for("surplus.surplus_board"))
     except (PermissionError, LookupError, ValueError) as err:
         flash(str(err), "danger")
         return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))
-
-
-@bp.post("/<int:listing_id>/komentar")
-@login_required
-def post_comment(listing_id: int) -> Union[Response, tuple[dict[str, Any], int]]:
-    """Post a discussion comment or Q&A on a surplus listing."""
-    # Check if listing exists
-    detail = surplus_service.get_surplus_detail(listing_id)
-    if not detail:
-        abort(404)
-
-    # Handle JSON request
-    if request.is_json:
-        try:
-            payload = CommentCreateSchema(**request.get_json())
-            c = surplus_service.add_comment(
-                listing_id=listing_id,
-                user_id=current_user.id,
-                body=payload.body,
-                parent_id=payload.parent_id,
-            )
-            return jsonify(message="Komentar berhasil dikirim", id=c.id), 201
-        except Exception as err:
-            return jsonify(error=str(err)), 400
-
-    body = (request.form.get("body") or "").strip()
-    parent_id_val = request.form.get("parent_id")
-    parent_id = int(parent_id_val) if parent_id_val and parent_id_val.isdigit() else None
-
-    if body:
-        surplus_service.add_comment(
-            listing_id=listing_id,
-            user_id=current_user.id,
-            body=body,
-            parent_id=parent_id,
-        )
-        flash("Komentar berhasil dikirim!", "success")
-    else:
-        flash("Isi komentar tidak boleh kosong.", "warning")
-
-    return redirect(url_for("surplus.surplus_detail", listing_id=listing_id))

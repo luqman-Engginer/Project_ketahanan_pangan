@@ -1,4 +1,4 @@
-"""Waste log routes: capture form + table of wasted food using real database entries."""
+﻿"""Waste log routes: capture form + table of wasted food using real database entries."""
 from __future__ import annotations
 
 from typing import Any, Union
@@ -10,12 +10,12 @@ from app.schemas.payloads import WasteLogCreateSchema
 from app.services import waste_service
 from app.utils.decorators import role_required
 
-bp: Blueprint = Blueprint("waste", __name__, url_prefix="/waste")
+bp: Blueprint = Blueprint("waste", __name__, url_prefix="/supplier/limbah")
 
 
 @bp.route("", methods=["GET", "POST"])
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def waste_page() -> Union[str, Response, tuple[dict[str, Any], int]]:
     """Render waste log table; POST records or updates a waste entry."""
     org_id = current_user.org_id
@@ -87,9 +87,9 @@ def waste_page() -> Union[str, Response, tuple[dict[str, Any], int]]:
 
 @bp.post("/<int:log_id>/delete")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def delete_log(log_id: int) -> Response:
-    """Delete a waste log entry owned by the current donor organization."""
+    """Delete a waste log entry owned by the current supplier organization."""
     try:
         waste_service.delete_waste_log(log_id=log_id, org_id=current_user.org_id)
         flash("Log limbah berhasil dihapus.", "success")
@@ -97,3 +97,4 @@ def delete_log(log_id: int) -> Response:
         flash(str(err), "danger")
 
     return redirect(url_for("waste.waste_page"))
+

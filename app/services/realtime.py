@@ -1,10 +1,4 @@
-"""Real-time domain events published to the SSE broadcaster.
-
-This module translates business changes (surplus published, claim updated,
-stock expiring, impact recalculated) into :mod:`app.services.event_stream`
-events. It also persists the matching :class:`~app.models.activity.Notification`
-rows so the notification badge stays consistent with the live stream.
-"""
+"""Real-time domain events published to the SSE broadcaster."""
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -14,25 +8,20 @@ from app.extensions import db
 from app.models import FoodCategory, InventoryItem, Organization, User
 from app.services import impact, notification_service
 from app.services.event_stream import (
-    EVENT_CLAIM_UPDATE,
     EVENT_EXPIRY_ALERT,
     EVENT_KPI_UPDATE,
+    EVENT_REVIEW_UPDATE,
     EVENT_SURPLUS_NEW,
     broadcaster,
 )
 
-#: Human readable labels for the claim lifecycle.
-CLAIM_STATUS_LABELS: dict[str, str] = {
-    "pending": "menunggu konfirmasi",
+REVIEW_STATUS_LABELS: dict[str, str] = {
+    "pending": "menunggu review",
     "approved": "disetujui",
-    "picked_up": "sudah diambil",
-    "cancelled": "dibatalkan",
+    "rejected": "ditolak",
 }
 
-#: Number of days before expiry that still triggers an alert.
 EXPIRY_ALERT_WINDOW_DAYS = 3
-
-#: Dedupe registry so the same item is not alerted twice on the same day.
 _expiry_alert_registry: dict[tuple[int, str], date] = {}
 
 
@@ -41,22 +30,6 @@ def users_of_org(org_id: Optional[int]) -> list[int]:
     if not org_id:
         return []
     rows = db.session.query(User.id).filter(User.org_id == org_id, User.is_active.is_(True)).all()
-    return [row[0] for row in rows]
-
-
-def _receiver_user_ids_in_city(city_id: int) -> list[int]:
-    """Return the ids of active receiver users located in a city."""
-    rows = (
-        db.session.query(User.id)
-        .join(Organization, User.org_id == Organization.id)
-        .filter(
-            Organization.city_id == city_id,
-            Organization.type == "receiver",
-            User.role == "receiver",
-            User.is_active.is_(True),
-        )
-        .all()
-    )
     return [row[0] for row in rows]
 
 
@@ -75,22 +48,12 @@ def publish_surplus_new(
     listing: Any,
     category_name: str,
     city_name: str,
-    donor_name: str,
+    supplier_name: str,
     actor_user_id: Optional[int] = None,
 ) -> None:
-    """Announce a newly published surplus listing.
-
-    Args:
-        listing: The persisted :class:`~app.models.food.SurplusListing`.
-        category_name: Food category label of the listing.
-        city_name: City label of the listing.
-        donor_name: Organisation that published the listing.
-        actor_user_id: User that created the listing (excluded from notifications).
-    """
-    receivers = [uid for uid in _receiver_user_ids_in_city(listing.city_id) if uid != actor_user_id]
+    """Announce a new pending listing and notify administrators."""
     admins = _admin_user_ids()
-    donor_users = users_of_org(listing.org_id)
-
+    owner_users = users_of_org(listing.org_id)
     payload = {
         "listing_id": listing.id,
         "title": listing.title,
@@ -100,89 +63,61 @@ def publish_surplus_new(
         "qty_kg": float(listing.qty_kg),
         "city": city_name,
         "pickup_before": listing.pickup_before.strftime("%d %b %Y, %H:%M"),
-        "donor": donor_name,
-        "url": f"/surplus/{listing.id}",
+        "supplier": supplier_name,
+        "review_status": listing.review_status,
+        "url": f"/admin/pasokan/{listing.id}",
     }
-
     notified = notification_service.notify_users(
-        receivers,
+        [uid for uid in admins if uid != actor_user_id],
         EVENT_SURPLUS_NEW,
         {
-            "title": f"Surplus baru: {listing.title}",
-            "message": f"{donor_name} recyclerkan {float(listing.qty):g} {listing.unit} di {city_name}.",
+            "title": f"Pasokan menunggu review: {listing.title}",
+            "message": f"{supplier_name} mengirim {float(listing.qty):g} {listing.unit} untuk ditinjau.",
             "listing_id": listing.id,
         },
     )
-
     broadcaster.publish(
         EVENT_SURPLUS_NEW,
         payload,
-        target_user_ids=set(receivers) | set(admins) | set(donor_users),
+        target_user_ids=set(admins) | set(owner_users),
         user_payloads=_unread_payload(notified),
     )
 
 
-def publish_claim_update(
-    claim: Any,
-    listing_title: str,
-    receiver_name: str,
-    city_name: str,
-    notify_user_ids: Optional[list[int]] = None,
-) -> None:
-    """Announce a claim creation or status transition.
-
-    Args:
-        claim: The persisted :class:`~app.models.food.Claim`.
-        listing_title: Title of the claimed surplus listing.
-        receiver_name: Organisation that owns the claim.
-        city_name: City of the claimed listing.
-        notify_user_ids: Users that should also receive a stored notification.
-    """
-    donor_users = users_of_org(claim.listing.org_id if claim.listing else None)
-    receiver_users = users_of_org(claim.receiver_org_id)
-    admins = _admin_user_ids()
-
-    status_label = CLAIM_STATUS_LABELS.get(claim.status, claim.status)
+def publish_review_update(listing: Any, reviewer_name: str) -> None:
+    """Announce an admin review decision to the owning supplier."""
+    owner_users = users_of_org(listing.org_id)
+    status_label = REVIEW_STATUS_LABELS.get(listing.review_status, listing.review_status)
     payload = {
-        "claim_id": claim.id,
-        "listing_id": claim.listing_id,
-        "listing_title": listing_title,
-        "status": claim.status,
+        "listing_id": listing.id,
+        "title": listing.title,
+        "review_status": listing.review_status,
         "status_label": status_label,
-        "receiver": receiver_name,
-        "city": city_name,
-        "claimed_at": claim.claimed_at.strftime("%d %b %Y, %H:%M") if claim.claimed_at else "-",
+        "review_note": listing.review_note or "",
+        "reviewed_by": reviewer_name,
+        "url": f"/supplier/pasokan/{listing.id}",
     }
-
     notified = notification_service.notify_users(
-        notify_user_ids or [],
-        EVENT_CLAIM_UPDATE,
+        owner_users,
+        EVENT_REVIEW_UPDATE,
         {
-            "title": f"Klaim {status_label}: {listing_title}",
-            "message": f"{receiver_name} memperbarui klaim untuk {listing_title} ({city_name}).",
-            "claim_id": claim.id,
+            "title": f"Pasokan {status_label}: {listing.title}",
+            "message": listing.review_note or f"Admin telah meninjau pasokan Anda.",
+            "listing_id": listing.id,
         },
     )
-
     broadcaster.publish(
-        EVENT_CLAIM_UPDATE,
+        EVENT_REVIEW_UPDATE,
         payload,
-        target_user_ids=set(donor_users) | set(receiver_users) | set(admins),
+        target_user_ids=set(owner_users) | set(_admin_user_ids()),
         user_payloads=_unread_payload(notified),
     )
 
 
 def publish_expiry_alert(item: Any, category_name: str, org_name: str) -> None:
-    """Announce that a stock item is about to expire.
-
-    Args:
-        item: The persisted :class:`~app.models.food.InventoryItem`.
-        category_name: Food category label of the item.
-        org_name: Organisation owning the stock.
-    """
+    """Announce that a stock item is about to expire."""
     days_left = (item.expires_on - date.today()).days
     owner_users = users_of_org(item.org_id)
-
     payload = {
         "item_id": item.id,
         "name": item.name,
@@ -193,9 +128,8 @@ def publish_expiry_alert(item: Any, category_name: str, org_name: str) -> None:
         "days_left": days_left,
         "days_label": "Hari ini" if days_left == 0 else f"H-{days_left}",
         "org": org_name,
-        "url": "/inventory",
+        "url": "/supplier/stok",
     }
-
     notified = notification_service.notify_users(
         owner_users,
         EVENT_EXPIRY_ALERT,
@@ -205,7 +139,6 @@ def publish_expiry_alert(item: Any, category_name: str, org_name: str) -> None:
             "item_id": item.id,
         },
     )
-
     broadcaster.publish(
         EVENT_EXPIRY_ALERT,
         payload,
@@ -215,7 +148,7 @@ def publish_expiry_alert(item: Any, category_name: str, org_name: str) -> None:
 
 
 def publish_kpi_update() -> None:
-    """Broadcast refreshed dashboard KPIs, trend, and distributions."""
+    """Broadcast refreshed platform KPIs to administrators only."""
     broadcaster.publish(
         EVENT_KPI_UPDATE,
         {
@@ -224,21 +157,14 @@ def publish_kpi_update() -> None:
             "kategori": impact.get_category_distribution(),
             "wilayah": impact.get_regional_distribution(),
         },
+        target_user_ids=set(_admin_user_ids()),
     )
 
 
 def scan_expiry_alerts() -> int:
-    """Publish expiry alerts for every stock item inside the alert window.
-
-    The same item is alerted at most once per day so repeated page loads or
-    SSE reconnections never spam the user.
-
-    Returns:
-        Number of alerts published during this scan.
-    """
+    """Publish expiry alerts for every stock item inside the alert window."""
     today = date.today()
     horizon = today + timedelta(days=EXPIRY_ALERT_WINDOW_DAYS)
-
     rows = (
         db.session.query(InventoryItem, FoodCategory.name.label("category_name"), Organization.name.label("org_name"))
         .join(FoodCategory, InventoryItem.category_id == FoodCategory.id)
@@ -246,37 +172,22 @@ def scan_expiry_alerts() -> int:
         .filter(InventoryItem.expires_on >= today, InventoryItem.expires_on <= horizon)
         .all()
     )
-
-    published = 0
-    for item, category_name, org_name in rows:
-        if alert_expiring_item(item, category_name=category_name, org_name=org_name):
-            published += 1
-    return published
+    return sum(
+        1 for item, category_name, org_name in rows
+        if alert_expiring_item(item, category_name=category_name, org_name=org_name)
+    )
 
 
 def alert_expiring_item(item: Any, category_name: str, org_name: str) -> bool:
-    """Publish an ``expiry_alert`` event for a stock item inside the alert window.
-
-    The alert is emitted at most once per item per day.
-
-    Args:
-        item: The persisted :class:`~app.models.food.InventoryItem`.
-        category_name: Food category label of the item.
-        org_name: Organisation owning the stock.
-
-    Returns:
-        True when an alert was published, False when skipped or out of window.
-    """
+    """Publish an expiry alert at most once per item per day."""
     today = date.today()
     horizon = today + timedelta(days=EXPIRY_ALERT_WINDOW_DAYS)
     if not (today <= item.expires_on <= horizon):
         return False
-
     _prune_expiry_registry()
     key = (item.id, item.expires_on.isoformat())
     if _expiry_alert_registry.get(key) == today:
         return False
-
     _expiry_alert_registry[key] = today
     publish_expiry_alert(item, category_name=category_name, org_name=org_name)
     return True
@@ -285,6 +196,5 @@ def alert_expiring_item(item: Any, category_name: str, org_name: str) -> bool:
 def _prune_expiry_registry() -> None:
     """Drop alert registry entries older than one week."""
     cutoff = date.today() - timedelta(days=7)
-    stale = [key for key, value in _expiry_alert_registry.items() if value < cutoff]
-    for key in stale:
+    for key in [key for key, value in _expiry_alert_registry.items() if value < cutoff]:
         _expiry_alert_registry.pop(key, None)

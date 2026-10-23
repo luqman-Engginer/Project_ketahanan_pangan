@@ -1,58 +1,53 @@
 {% extends "base.html" %}
-{% block title %}Papan Surplus — FoodLoop ID{% endblock %}
+{% block title %}{{ 'Review Pasokan' if mode == 'admin' else 'Pasokan Saya' }} — FoodLoop ID{% endblock %}
 {% from "components/status_badge.html" import status_badge %}
 {% from "components/empty_state.html" import empty_state %}
+{% set board_endpoint = 'admin.pasokan_board' if mode == 'admin' else 'surplus.surplus_board' %}
+{% set detail_endpoint = 'admin.pasokan_detail' if mode == 'admin' else 'surplus.surplus_detail' %}
 
 {% block content %}
 <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
   <div>
-    <h1 class="text-2xl font-bold text-ink">Papan Surplus</h1>
-    <p class="mt-1 text-sm text-ink-muted">Temukan pangan berlebih di sekitar Anda, saring, lalu klaim.</p>
+    <h1 class="text-2xl font-bold text-ink">{{ 'Review Pasokan' if mode == 'admin' else 'Pasokan Saya' }}</h1>
+    <p class="mt-1 text-sm text-ink-muted">
+      {% if mode == 'admin' %}
+      Tinjau pasokan dari seluruh supplier sebelum dampaknya dihitung.
+      {% else %}
+      Kirim pangan surplus; setiap pasokan baru menunggu review admin.
+      {% endif %}
+    </p>
   </div>
-  <p class="text-sm font-medium text-ink-muted">Menampilkan {{ listings | length }} surplus</p>
+  <p class="text-sm font-medium text-ink-muted">Menampilkan {{ listings | length }} pasokan</p>
 </div>
 
 {% if can_create %}
 <section class="card mb-6 p-5" aria-labelledby="post-heading">
-  <h2 id="post-heading" class="text-base font-semibold text-ink">Posting surplus baru</h2>
-  <p class="mt-1 text-sm text-ink-muted">Tayangkan kelebihan pangan agar dapat diklaim oleh penerima manfaat.</p>
+  <h2 id="post-heading" class="text-base font-semibold text-ink">Kirim pasokan baru</h2>
+  <p class="mt-1 text-sm text-ink-muted">Lengkapi data agar admin dapat meninjau kelayakan pasokan.</p>
   <form method="post" action="{{ url_for('surplus.create_listing') }}" class="mt-4 grid gap-3 md:grid-cols-2">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="md:col-span-2">
-      <label for="new-title" class="mb-1.5 block text-sm font-medium text-ink">Judul surplus</label>
+      <label for="new-title" class="mb-1.5 block text-sm font-medium text-ink">Judul pasokan</label>
       <input id="new-title" name="title" type="text" class="input" maxlength="200" required placeholder="Contoh: Nasi kotak sisa acara">
     </div>
     <div>
       <label for="new-category" class="mb-1.5 block text-sm font-medium text-ink">Kategori</label>
       <select id="new-category" name="category_id" class="input" required>
         <option value="" disabled selected>Pilih kategori</option>
-        {% for cat in categories %}
-        <option value="{{ cat.id }}">{{ cat.name }}</option>
-        {% endfor %}
+        {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}
       </select>
     </div>
     <div>
       <label for="new-city" class="mb-1.5 block text-sm font-medium text-ink">Kota</label>
       <select id="new-city" name="city_id" class="input" required>
         <option value="" disabled selected>Pilih kota</option>
-        {% for city in cities %}
-        <option value="{{ city.id }}">{{ city.name }}</option>
-        {% endfor %}
+        {% for city in cities %}<option value="{{ city.id }}">{{ city.name }}</option>{% endfor %}
       </select>
     </div>
     <div class="grid grid-cols-3 gap-3 md:col-span-2">
-      <div>
-        <label for="new-qty" class="mb-1.5 block text-sm font-medium text-ink">Jumlah</label>
-        <input id="new-qty" name="qty" type="number" step="0.01" min="0.01" class="input" required>
-      </div>
-      <div>
-        <label for="new-unit" class="mb-1.5 block text-sm font-medium text-ink">Satuan</label>
-        <input id="new-unit" name="unit" type="text" class="input" maxlength="20" value="kg" required>
-      </div>
-      <div>
-        <label for="new-qtykg" class="mb-1.5 block text-sm font-medium text-ink">Berat (kg)</label>
-        <input id="new-qtykg" name="qty_kg" type="number" step="0.01" min="0.01" class="input" required>
-      </div>
+      <div><label for="new-qty" class="mb-1.5 block text-sm font-medium text-ink">Jumlah</label><input id="new-qty" name="qty" type="number" step="0.01" min="0.01" class="input" required></div>
+      <div><label for="new-unit" class="mb-1.5 block text-sm font-medium text-ink">Satuan</label><input id="new-unit" name="unit" type="text" class="input" maxlength="20" value="kg" required></div>
+      <div><label for="new-qtykg" class="mb-1.5 block text-sm font-medium text-ink">Berat (kg)</label><input id="new-qtykg" name="qty_kg" type="number" step="0.01" min="0.01" class="input" required></div>
     </div>
     <div class="md:col-span-2">
       <label for="new-pickup" class="mb-1.5 block text-sm font-medium text-ink">Batas waktu pengambilan</label>
@@ -62,45 +57,36 @@
       <label for="new-notes" class="mb-1.5 block text-sm font-medium text-ink">Catatan &amp; petunjuk pengambilan</label>
       <textarea id="new-notes" name="notes" rows="2" class="input" maxlength="1000" placeholder="Opsional"></textarea>
     </div>
-    <div class="md:col-span-2 flex justify-end">
-      <button type="submit" class="btn btn-primary">Publikasikan surplus</button>
-    </div>
+    <div class="md:col-span-2 flex justify-end"><button type="submit" class="btn btn-primary">Kirim untuk review</button></div>
   </form>
 </section>
 {% endif %}
 
-<form method="get" action="{{ url_for('surplus.surplus_board') }}" class="card mb-6 p-4">
+<form method="get" action="{{ url_for(board_endpoint) }}" class="card mb-6 p-4">
   <div class="grid gap-3 md:grid-cols-4">
     <div class="md:col-span-2">
-      <label for="filter-search" class="sr-only">Cari judul surplus</label>
-      <div class="relative">
-        <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="filter-search" name="q" type="search" value="{{ search_query }}" class="input pl-10" placeholder="Cari judul surplus…" autocomplete="off">
-      </div>
+      <label for="filter-search" class="sr-only">Cari pasokan</label>
+      <input id="filter-search" name="q" type="search" value="{{ search_query }}" class="input" placeholder="Cari judul pasokan…" autocomplete="off">
     </div>
     <div>
       <label for="filter-category" class="sr-only">Kategori</label>
       <select id="filter-category" name="category" class="input">
         <option value="">Semua kategori</option>
-        {% for category in categories %}
-        <option value="{{ category.name }}" {{ 'selected' if selected_category == category.name }}>{{ category.name }}</option>
-        {% endfor %}
+        {% for category in categories %}<option value="{{ category.name }}" {{ 'selected' if selected_category == category.name }}>{{ category.name }}</option>{% endfor %}
       </select>
     </div>
     <div>
       <label for="filter-city" class="sr-only">Kota</label>
       <select id="filter-city" name="city" class="input">
         <option value="">Semua kota</option>
-        {% for city in cities %}
-        <option value="{{ city.name }}" {{ 'selected' if selected_city == city.name }}>{{ city.name }}</option>
-        {% endfor %}
+        {% for city in cities %}<option value="{{ city.name }}" {{ 'selected' if selected_city == city.name }}>{{ city.name }}</option>{% endfor %}
       </select>
     </div>
   </div>
-  <div class="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter status">
+  <div class="mt-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter status review">
     <span class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Status</span>
-    {% for key, label in [('semua', 'Semua'), ('tersedia', 'Tersedia'), ('diklaim', 'Diklaim'), ('diambil', 'Diambil'), ('kedaluwarsa', 'Kedaluwarsa')] %}
-    <a href="{{ url_for('surplus.surplus_board', q=search_query, category=selected_category, city=selected_city, status=key) }}"
+    {% for key, label in [('semua', 'Semua'), ('pending', 'Menunggu'), ('approved', 'Disetujui'), ('rejected', 'Ditolak')] %}
+    <a href="{{ url_for(board_endpoint, q=search_query, category=selected_category, city=selected_city, status=key) }}"
        class="chip {{ 'chip-active' if selected_status == key }}" {% if selected_status == key %}aria-current="true"{% endif %}>{{ label }}</a>
     {% endfor %}
     <button type="submit" class="btn btn-secondary ml-auto">Terapkan</button>
@@ -111,27 +97,21 @@
 <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
   {% for listing in listings %}
   <article class="card overflow-hidden transition hover:-translate-y-0.5">
-    <a href="{{ url_for('surplus.surplus_detail', listing_id=listing.id) }}" class="block h-full">
-      <div class="relative h-36 {{ listing.tone }}">
+    <a href="{{ url_for(detail_endpoint, listing_id=listing.id) }}" class="block h-full">
+      <div class="relative h-28 {{ listing.tone }}">
         <span class="absolute left-3 top-3 rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold text-ink">{{ listing.category }}</span>
-        <span class="absolute right-3 top-3">{{ status_badge(listing.status) }}</span>
-        <span class="absolute inset-0 grid place-items-center text-white/90">
-          <svg class="h-10 w-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 9.4 7.5 4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        </span>
+        <span class="absolute right-3 top-3">{{ status_badge(listing.review_status) }}</span>
       </div>
       <div class="p-4">
         <h2 class="text-base font-semibold leading-snug text-ink">{{ listing.title }}</h2>
         <p class="mt-1 line-clamp-2 text-sm text-ink-muted">{{ listing.excerpt }}</p>
         <div class="mt-3 flex items-center justify-between gap-3 text-xs text-ink-muted">
-          <span class="inline-flex items-center gap-1.5 truncate">
-            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            {{ listing.city }}
-          </span>
+          <span class="truncate">{{ listing.city }}</span>
           <span class="shrink-0 font-semibold text-primary-700">{{ listing.qty }} {{ listing.unit }}</span>
         </div>
         <div class="mt-3 flex items-center justify-between gap-3 border-t border-line pt-3 text-xs">
-          <span class="truncate text-ink-muted">{{ listing.donor }}</span>
-          <span class="shrink-0 text-ink-muted">{{ listing.views }} dilihat</span>
+          <span class="truncate text-ink-muted">{{ listing.supplier }}</span>
+          <span class="shrink-0 text-ink-muted">{{ listing.created_at }}</span>
         </div>
       </div>
     </a>
@@ -139,6 +119,6 @@
   {% endfor %}
 </div>
 {% else %}
-{{ empty_state('Tidak ada surplus yang cocok', 'Ubah kata kunci, kategori, atau kota untuk melihat hasil lain.', 'Hapus filter', url_for('surplus.surplus_board')) }}
+{{ empty_state('Belum ada pasokan', 'Pasokan yang dikirim akan muncul di sini beserta status review-nya.', 'Muat ulang', url_for(board_endpoint)) }}
 {% endif %}
 {% endblock %}

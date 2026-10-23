@@ -1,20 +1,19 @@
 """FoodLoop ID application factory."""
 from __future__ import annotations
 
+import secrets
 from typing import Any
 
-from flask import Flask
+from flask import Flask, request
 
 from app.blueprints import (
     admin_bp,
     auth_bp,
-    claims_bp,
     events_bp,
     export_bp,
     inventory_bp,
     main_bp,
     notification_bp,
-    public_bp,
     report_bp,
     surplus_bp,
     waste_bp,
@@ -65,7 +64,7 @@ def _register_security_headers(app: Flask) -> None:
         force_https=app.config["FORCE_HTTPS"],
         frame_options=app.config["TALISMAN_FRAME_OPTIONS"],
         referrer_policy=app.config["TALISMAN_REFERRER_POLICY"],
-        session_cookie_secure=False,
+        session_cookie_secure=app.config["SESSION_COOKIE_SECURE"],
         session_cookie_http_only=True,
         session_cookie_samesite="Lax",
         strict_transport_security=True,
@@ -81,21 +80,20 @@ def _register_blueprints(app: Flask) -> None:
     app.register_blueprint(auth_bp)
     app.register_blueprint(inventory_bp)
     app.register_blueprint(surplus_bp)
-    app.register_blueprint(claims_bp)
     app.register_blueprint(waste_bp)
     app.register_blueprint(report_bp)
     app.register_blueprint(export_bp)
     app.register_blueprint(notification_bp)
-    app.register_blueprint(public_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(events_bp)
 
 
 def _register_commands(app: Flask) -> None:
     """Register custom Flask CLI commands."""
-    from app.scripts.seed import seed_command
+    from app.scripts.seed import create_admin_command, seed_command
 
     app.cli.add_command(seed_command)
+    app.cli.add_command(create_admin_command)
 
 
 def create_app(config_class: type[Config] = Config) -> Flask:
@@ -109,10 +107,26 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     """
     app = Flask(__name__)
     app.config.from_object(config_class)
+    if not app.config.get("SECRET_KEY"):
+        if app.config.get("TESTING") or app.config.get("DEBUG"):
+            app.config["SECRET_KEY"] = secrets.token_hex(32)
+        else:
+            raise RuntimeError("SECRET_KEY wajib diisi melalui environment pada mode production.")
     _register_extensions(app)
     _register_blueprints(app)
     _register_commands(app)
     register_error_handlers(app)
+
+    @app.after_request
+    def prevent_authenticated_caching(response):
+        """Prevent browsers from caching authenticated and auth pages."""
+        from flask_login import current_user
+
+        if response.mimetype == "text/html" and (
+            current_user.is_authenticated or request.endpoint in {"auth.login", "auth.register"}
+        ):
+            response.headers["Cache-Control"] = "no-store"
+        return response
 
     @app.context_processor
     def inject_globals() -> dict[str, Any]:

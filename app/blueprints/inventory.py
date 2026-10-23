@@ -1,4 +1,4 @@
-"""Inventory tracker routes: FEFO ordering, expiry badges, and stock monitoring."""
+﻿"""Inventory tracker routes: FEFO ordering, expiry badges, and stock monitoring."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta
@@ -13,7 +13,7 @@ from app.schemas.payloads import InventoryItemCreateSchema
 from app.services import inventory_service, realtime
 from app.utils.decorators import role_required
 
-bp: Blueprint = Blueprint("inventory", __name__, url_prefix="/inventory")
+bp: Blueprint = Blueprint("inventory", __name__, url_prefix="/supplier/stok")
 
 _STATUS_FILTERS: dict[str, str] = {
     "semua": "Semua status",
@@ -24,7 +24,7 @@ _STATUS_FILTERS: dict[str, str] = {
 
 
 def _require_donor_org() -> int:
-    """Return the current donor's organization id, or abort with 403.
+    """Return the current supplier's organization id, or abort with 403.
 
     Returns:
         Organization id bound to the current user.
@@ -33,13 +33,13 @@ def _require_donor_org() -> int:
         PermissionError: If the user has no linked organization.
     """
     if not current_user.org_id:
-        raise PermissionError("User tidak terhubung dengan organisasi donor.")
+        raise PermissionError("User tidak terhubung dengan organisasi supplier.")
     return current_user.org_id
 
 
 @bp.get("/")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def inventory_page() -> str:
     """Render the inventory table filtered by expiry status and search query."""
     active = request.args.get("status", "semua")
@@ -74,7 +74,7 @@ def inventory_page() -> str:
 
 @bp.post("/")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def create_item() -> Union[Response, tuple[dict[str, Any], int]]:
     """Record a new inventory stock item."""
     try:
@@ -122,7 +122,7 @@ def create_item() -> Union[Response, tuple[dict[str, Any], int]]:
 
 @bp.post("/<int:item_id>/update")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def update_item(item_id: int) -> Response:
     """Update an inventory item owned by the current donor organization."""
     try:
@@ -155,7 +155,7 @@ def update_item(item_id: int) -> Response:
 
 @bp.post("/<int:item_id>/delete")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def delete_item(item_id: int) -> Response:
     """Delete an inventory item owned by the current donor organization."""
     try:
@@ -170,7 +170,7 @@ def delete_item(item_id: int) -> Response:
 
 @bp.post("/<int:item_id>/convert-surplus")
 @login_required
-@role_required("donor", "admin")
+@role_required("supplier")
 def convert_to_surplus(item_id: int) -> Response:
     """Convert an expiring inventory stock item directly into a surplus food listing."""
     try:
@@ -192,3 +192,4 @@ def convert_to_surplus(item_id: int) -> Response:
     except Exception as e:
         flash(f"Gagal mengalihkan item ke surplus: {e}", "danger")
         return redirect(url_for("inventory.inventory_page"))
+

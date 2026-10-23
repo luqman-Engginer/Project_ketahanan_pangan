@@ -2,7 +2,6 @@
 from app.services import (
     admin_service,
     auth_service,
-    claim_service,
     impact,
     inventory_service,
     notification_service,
@@ -17,7 +16,6 @@ __all__ = [
     "auth_service",
     "inventory_service",
     "surplus_service",
-    "claim_service",
     "waste_service",
     "report_service",
     "notification_service",

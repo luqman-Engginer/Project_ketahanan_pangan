@@ -28,13 +28,13 @@ except ImportError:  # pragma: no cover - local development fallback
 
 # Event types streamed to the browser (PRD section 4, point 6).
 EVENT_SURPLUS_NEW = "surplus_new"
-EVENT_CLAIM_UPDATE = "claim_update"
+EVENT_REVIEW_UPDATE = "review_update"
 EVENT_EXPIRY_ALERT = "expiry_alert"
 EVENT_KPI_UPDATE = "kpi_update"
 
 EVENT_TYPES: tuple[str, ...] = (
     EVENT_SURPLUS_NEW,
-    EVENT_CLAIM_UPDATE,
+    EVENT_REVIEW_UPDATE,
     EVENT_EXPIRY_ALERT,
     EVENT_KPI_UPDATE,
 )

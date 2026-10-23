@@ -11,10 +11,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 class UserRegisterSchema(BaseModel):
     """Payload schema for user and organisation self-registration."""
 
-    model_config = ConfigDict(str_strip_whitespace=True)
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
     name: str = Field(..., min_length=3, max_length=100)
-    role: str = Field(..., pattern="^(donor|receiver)$")
     email: EmailStr
     password: str = Field(..., min_length=8)
     city_id: Optional[int] = None
@@ -55,10 +54,13 @@ class SurplusListingCreateSchema(BaseModel):
     notes: Optional[str] = None
 
 
-class ClaimStatusUpdateSchema(BaseModel):
-    """Payload schema to update claim workflow status."""
+class SurplusReviewSchema(BaseModel):
+    """Payload schema for an admin reviewing a surplus listing."""
 
-    status: str = Field(..., pattern="^(pending|approved|picked_up|cancelled)$")
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    status: str = Field(..., pattern="^(approved|rejected)$")
+    note: Optional[str] = Field(default=None, max_length=1000)
 
 
 class WasteLogCreateSchema(BaseModel):

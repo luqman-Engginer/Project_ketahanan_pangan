@@ -29,9 +29,9 @@ class User(UserMixin, db.Model):
     email: Mapped[str] = mapped_column(String(150), unique=True, nullable=False, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(
-        Enum("admin", "donor", "receiver", name="user_role_enum"),
+        Enum("admin", "supplier", name="user_role_enum"),
         nullable=False,
-        default="donor",
+        default="supplier",
     )
     org_id: Mapped[Optional[int]] = mapped_column(
         Integer, ForeignKey("organizations.id", ondelete="SET NULL"), nullable=True, index=True

@@ -1,42 +1,25 @@
-"""Main application routes: landing page, health check, and authenticated impact dashboard."""
+"""Landing page, health check, and role-based dashboard routing."""
 from __future__ import annotations
 
-from flask import Blueprint, Response, jsonify, render_template
+from flask import Blueprint, Response, abort, jsonify, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
-from app.extensions import db
-from app.models import City, Organization
-from app.services import claim_service, impact
+from app.services import impact, surplus_service
+from app.utils.decorators import role_required
 
 bp: Blueprint = Blueprint("main", __name__)
 
 LANDING_FEATURES = [
-    {
-        "icon": "board",
-        "title": "Papan Surplus",
-        "body": "Donor menayangkan kelebihan pangan, penerima menyaring per kota dan status lalu mengklaim.",
-    },
-    {
-        "icon": "clock",
-        "title": "Pelacakan Kedaluwarsa",
-        "body": "Peringatan H-3 dan H-1 beserta saran FEFO agar stok terpakai sebelum dibuang.",
-    },
-    {
-        "icon": "chart",
-        "title": "Laporan Dampak",
-        "body": "Grafik tren harian, kontribusi per kategori, dan sebaran wilayah dalam satu dasbor.",
-    },
-    {
-        "icon": "leaf",
-        "title": "Jejak Karbon",
-        "body": "Setiap paket yang terselamatkan dihitung CO₂e yang dicegah berdasar faktor emisi.",
-    },
+    {"icon": "board", "title": "Pasokan terverifikasi", "body": "Supplier mengirim pasokan pangan surplus dan admin meninjau kelayakannya sebelum tampil."},
+    {"icon": "clock", "title": "Stok & kedaluwarsa", "body": "Catat stok, pantau tanggal kedaluwarsa, dan ubah stok berlebih menjadi pasokan."},
+    {"icon": "chart", "title": "Laporan dampak", "body": "Pantau pangan terselamatkan, nilai pangan, porsi, dan emisi yang dicegah."},
+    {"icon": "leaf", "title": "Jejak karbon", "body": "Setiap kilogram pangan terselamatkan dihitung menggunakan faktor emisi kategori."},
 ]
 
 LANDING_STEPS = [
-    {"number": "1", "title": "Daftar organisasi", "body": "Donor atau penerima mendaftar dan memilih peran."},
-    {"number": "2", "title": "Sebar atau klaim surplus", "body": "Posting pangan berlebih atau klaim yang sesuai kebutuhan."},
-    {"number": "3", "title": "Ambil dan catat dampak", "body": "Barang diambil, dampak terhitung otomatis di dasbor."},
+    {"number": "1", "title": "Daftar sebagai supplier", "body": "Buat akun supplier untuk organisasi Anda."},
+    {"number": "2", "title": "Kirim pasokan", "body": "Catat pangan surplus lengkap dengan kategori, berat, dan batas pengambilan."},
+    {"number": "3", "title": "Tinjau dan ukur dampak", "body": "Admin memverifikasi pasokan; dampak dihitung dari pasokan yang disetujui."},
 ]
 
 
@@ -48,44 +31,35 @@ def health() -> Response:
 
 @bp.get("/")
 def landing() -> str:
-    """Render the public landing page with live statistics."""
-    kpis = impact.calculate_impact_kpis()
-    kg_saved = float(kpis["kg_saved"])
-    ton_saved = kg_saved / 1000.0 if kg_saved >= 1000 else kg_saved
-
-    org_count = Organization.query.count()
-    city_count = db.session.query(db.func.count(db.func.distinct(Organization.city_id))).scalar() or 0
-
-    stats = [
-        {"value": f"{ton_saved:.0f} ton" if kg_saved >= 1000 else f"{kg_saved:.0f} kg", "label": "Pangan terselamatkan"},
-        {"value": f"{org_count:,}".replace(",", "."), "label": "Organisasi aktif"},
-        {"value": f"{city_count} kota", "label": "Jangkauan layanan"},
-    ]
-
-    return render_template(
-        "landing.html",
-        layout="public",
-        stats=stats,
-        features=LANDING_FEATURES,
-        steps=LANDING_STEPS,
-    )
+    """Render the public landing page without live database statistics."""
+    return render_template("landing.html", layout="public", features=LANDING_FEATURES, steps=LANDING_STEPS)
 
 
 @bp.get("/dashboard")
 @login_required
-def dashboard() -> str:
-    """Render the authenticated impact dashboard with live KPI cards and Chart.js charts."""
-    kpis = impact.get_dashboard_kpis()
-    trend = impact.get_daily_rescued_trend(days=14)
-    kategori = impact.get_category_distribution()
-    wilayah = impact.get_regional_distribution()
-    recent_claims = claim_service.get_recent_claims(limit=5)
+def dashboard() -> Response:
+    """Redirect authenticated users to their role-specific dashboard."""
+    if current_user.role == "admin":
+        return redirect(url_for("admin.index"))
+    if current_user.role == "supplier":
+        return redirect(url_for("main.supplier_dashboard"))
+    abort(403)
 
+
+@bp.get("/supplier")
+@login_required
+@role_required("supplier")
+def supplier_dashboard() -> str:
+    """Render the supplier dashboard scoped to the user's organization."""
+    org_id = current_user.org_id
+    if not org_id:
+        abort(403, description="Akun Anda belum terhubung dengan organisasi supplier.")
     return render_template(
-        "dashboard.html",
-        kpis=kpis,
-        trend=trend,
-        kategori=kategori,
-        wilayah=wilayah,
-        claims=recent_claims,
+        "supplier/dashboard.html",
+        kpis=impact.get_dashboard_kpis(org_id=org_id),
+        trend=impact.get_daily_rescued_trend(days=14, org_id=org_id),
+        kategori=impact.get_category_distribution(org_id=org_id),
+        review_counts=impact.get_review_counts(org_id=org_id),
+        recent_listings=surplus_service.get_surplus_listings(org_id=org_id)[:5],
+        organization=current_user.organization,
     )

@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-import secrets
 from datetime import timedelta
 from pathlib import Path
 
@@ -45,7 +44,7 @@ def _database_uri() -> str:
 class Config:
     """Base configuration sourced from environment variables."""
 
-    SECRET_KEY: str = os.environ.get("SECRET_KEY", "").strip() or secrets.token_hex(32)
+    SECRET_KEY: str = os.environ.get("SECRET_KEY", "").strip()
     DEBUG: bool = _env_bool("FLASK_DEBUG")
     TESTING: bool = False
 
@@ -87,12 +86,7 @@ class Config:
         "object-src": ["'none'"],
         "frame-ancestors": ["'self'"],
         "form-action": ["'self'"],
-        "script-src": [
-            "'self'",
-            "'nonce-{nonce}'",
-            "https://unpkg.com",
-            "https://cdn.jsdelivr.net",
-        ],
+        "script-src": ["'self'", "'nonce-{nonce}'"],
         "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         "font-src": ["'self'", "https://fonts.gstatic.com", "data:"],
         "img-src": ["'self'", "data:"],
@@ -115,4 +109,5 @@ class TestConfig(Config):
     RATELIMIT_ENABLED: bool = False
     FORCE_HTTPS: bool = False
     SECRET_KEY: str = "testing-secret-key"
+    SESSION_COOKIE_SECURE: bool = False
     UPLOAD_FOLDER: str = str(INSTANCE_DIR / "uploads-test")

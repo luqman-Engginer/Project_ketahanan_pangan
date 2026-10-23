@@ -1,0 +1,30 @@
+{% from "components/status_badge.html" import status_badge %}
+<section id="review-card" class="card p-6" aria-labelledby="review-heading">
+  <div class="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h2 id="review-heading" class="text-base font-semibold text-ink">Keputusan review</h2>
+      <p class="mt-1 text-sm text-ink-muted">Pasokan yang disetujui akan dihitung dalam KPI dampak.</p>
+    </div>
+    {{ status_badge(listing.review_status) }}
+  </div>
+
+  {% if listing.review_status == 'pending' %}
+  <form method="post" action="{{ url_for('admin.review_pasokan', listing_id=listing.id) }}"
+        hx-post="{{ url_for('admin.review_pasokan', listing_id=listing.id) }}"
+        hx-target="#review-card" hx-swap="outerHTML" class="mt-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="review-note" class="mb-1.5 block text-sm font-medium text-ink">Catatan review <span class="font-normal text-ink-muted">(opsional, disarankan saat menolak)</span></label>
+    <textarea id="review-note" name="note" rows="3" maxlength="1000" class="input" placeholder="Alasan keputusan atau petunjuk perbaikan…"></textarea>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <button type="submit" name="status" value="approved" class="btn btn-primary" hx-disabled-elt="this">Setujui pasokan</button>
+      <button type="submit" name="status" value="rejected" class="btn btn-ghost text-danger-ink" hx-disabled-elt="this">Tolak pasokan</button>
+    </div>
+  </form>
+  {% else %}
+  <div class="mt-4 rounded-2xl bg-bg p-4 text-sm text-ink-muted">
+    <p>Keputusan: <span class="font-semibold text-ink">{{ listing.review_label }}</span>{% if listing.reviewed_at %} · {{ listing.reviewed_at }}{% endif %}</p>
+    {% if listing.review_note %}<p class="mt-2 text-ink">{{ listing.review_note }}</p>{% else %}<p class="mt-2">Tidak ada catatan review.</p>{% endif %}
+    <p class="mt-3">Status keputusan bersifat final. Hubungi supplier bila data perlu diperbaiki.</p>
+  </div>
+  {% endif %}
+</section>

@@ -1,65 +1,77 @@
 {% extends "base.html" %}
-{% block title %}Daftar — FoodLoop ID{% endblock %}
+{% block title %}Daftar Supplier — FoodLoop ID{% endblock %}
 
 {% block content %}
-<div class="mx-auto w-full max-w-md py-8 sm:py-12">
+<div class="mx-auto w-full max-w-lg py-8 sm:py-12">
   <div class="card p-6 sm:p-8">
     <div class="text-center">
       <span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-primary-700 text-white">
         <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
       </span>
-      <h1 class="mt-4 text-2xl font-bold text-ink">Daftar akun baru</h1>
-      <p class="mt-1 text-sm text-ink-muted">Butuh satu menit untuk mulai berbagi pangan.</p>
+      <h1 class="mt-4 text-2xl font-bold text-ink">Daftar akun supplier</h1>
+      <p class="mt-1 text-sm text-ink-muted">Kelola stok dan kirim pasokan pangan surplus untuk ditinjau admin.</p>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="mt-4 space-y-2">
           {% for category, message in messages %}
-            <div class="rounded-xl p-3 text-sm {% if category == 'danger' %}bg-danger-soft text-danger-ink{% else %}bg-primary-soft text-primary-700{% endif %}">
-              {{ message }}
-            </div>
+            <div class="rounded-xl p-3 text-sm {% if category == 'danger' %}bg-danger-soft text-danger-ink{% else %}bg-primary-soft text-primary-700{% endif %}">{{ message }}</div>
           {% endfor %}
         </div>
       {% endif %}
     {% endwith %}
 
-    <form method="post" action="/register" class="mt-7 space-y-4">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <form method="post" action="{{ url_for('auth.register') }}" class="mt-7 space-y-4">
+      {{ form.hidden_tag() }}
       <div>
-        <label for="reg-name" class="mb-1.5 block text-sm font-medium text-ink">Nama lengkap / organisasi</label>
-        <input id="reg-name" name="name" type="text" class="input" placeholder="Yayasan Pangan Bahagia" autocomplete="organization" required>
-      </div>
-      <div>
-        <label for="reg-role" class="mb-1.5 block text-sm font-medium text-ink">Saya mendaftar sebagai</label>
-        <select id="reg-role" name="role" class="input" required>
-          <option value="receiver">Penerima — komunitas / panti / dapur umum</option>
-          <option value="donor">Donor — restoran, toko, kebun, perusahaan</option>
-        </select>
+        <label for="reg-name" class="mb-1.5 block text-sm font-medium text-ink">Nama organisasi</label>
+        <input id="reg-name" name="name" type="text" class="input" placeholder="Contoh: Dapur Sehat Nusantara" autocomplete="organization" minlength="3" maxlength="100" value="{{ form.name.data or '' }}" required>
+        {% for error in form.name.errors %}<p class="mt-1 text-xs text-danger-ink">{{ error }}</p>{% endfor %}
       </div>
       <div>
         <label for="reg-email" class="mb-1.5 block text-sm font-medium text-ink">Email</label>
-        <input id="reg-email" name="email" type="email" class="input" placeholder="nama@organisasi.id" autocomplete="email" required>
+        <input id="reg-email" name="email" type="email" class="input" placeholder="nama@organisasi.id" autocomplete="email" value="{{ form.email.data or '' }}" required>
+        {% for error in form.email.errors %}<p class="mt-1 text-xs text-danger-ink">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="reg-city" class="mb-1.5 block text-sm font-medium text-ink">Kota operasional</label>
+          <select id="reg-city" name="city_id" class="input" required>
+            <option value="" disabled {{ 'selected' if not form.city_id.data }}>Pilih kota</option>
+            {% for city in cities %}<option value="{{ city.id }}" {{ 'selected' if form.city_id.data == city.id }}>{{ city.name }}</option>{% endfor %}
+          </select>
+          {% for error in form.city_id.errors %}<p class="mt-1 text-xs text-danger-ink">{{ error }}</p>{% endfor %}
+        </div>
+        <div>
+          <label for="reg-phone" class="mb-1.5 block text-sm font-medium text-ink">Nomor telepon <span class="font-normal text-ink-muted">(opsional)</span></label>
+          <input id="reg-phone" name="phone" type="tel" class="input" placeholder="08xx" autocomplete="tel" maxlength="30" value="{{ form.phone.data or '' }}">
+        </div>
+      </div>
+      <div>
+        <label for="reg-address" class="mb-1.5 block text-sm font-medium text-ink">Alamat <span class="font-normal text-ink-muted">(opsional)</span></label>
+        <input id="reg-address" name="address" type="text" class="input" placeholder="Alamat operasional" maxlength="255" value="{{ form.address.data or '' }}">
       </div>
       <div>
         <label for="reg-password" class="mb-1.5 block text-sm font-medium text-ink">Kata sandi</label>
         <input id="reg-password" name="password" type="password" class="input" placeholder="Minimal 8 karakter" autocomplete="new-password" minlength="8" required>
+        {% for error in form.password.errors %}<p class="mt-1 text-xs text-danger-ink">{{ error }}</p>{% endfor %}
       </div>
       <div>
         <label for="reg-confirm" class="mb-1.5 block text-sm font-medium text-ink">Ulangi kata sandi</label>
         <input id="reg-confirm" name="confirm" type="password" class="input" placeholder="Ulangi kata sandi" autocomplete="new-password" minlength="8" required>
+        {% for error in form.confirm.errors %}<p class="mt-1 text-xs text-danger-ink">{{ error }}</p>{% endfor %}
       </div>
       <label class="flex items-start gap-2 text-sm text-ink-muted">
-        <input type="checkbox" name="terms" class="mt-0.5 h-4 w-4 rounded border-line text-primary-700 focus:ring-primary-400" required>
+        <input type="checkbox" name="terms" class="mt-0.5 h-4 w-4 rounded border-line text-primary-700 focus:ring-primary-400" required {{ 'checked' if form.terms.data }}>
         <span>Saya menyetujui syarat layanan dan kebijakan privasi FoodLoop ID.</span>
       </label>
-      <button type="submit" class="btn btn-primary w-full">Buat Akun</button>
+      {% for error in form.terms.errors %}<p class="text-xs text-danger-ink">{{ error }}</p>{% endfor %}
+      <p class="rounded-xl bg-primary-soft p-3 text-xs leading-relaxed text-primary-700">Akun yang dibuat lewat halaman ini selalu berperan sebagai supplier. Akun admin hanya dibuat oleh administrator sistem.</p>
+      <button type="submit" class="btn btn-primary w-full">Buat Akun Supplier</button>
     </form>
 
-    <p class="mt-6 text-center text-sm text-ink-muted">
-      Sudah punya akun?
-      <a href="/login" class="font-semibold text-primary-700 hover:underline">Masuk</a>
-    </p>
+    <p class="mt-6 text-center text-sm text-ink-muted">Sudah punya akun? <a href="{{ url_for('auth.login') }}" class="font-semibold text-primary-700 hover:underline">Masuk</a></p>
   </div>
 </div>
 {% endblock %}

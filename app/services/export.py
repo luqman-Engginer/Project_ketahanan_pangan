@@ -157,7 +157,7 @@ def collect_dataset(
 
     kg_saved = float(metrics["kg_saved"])
     kg_waste = float(metrics["kg_waste"])
-    claims = int(metrics["claims_resolved"])
+    approved_count = int(metrics["approved_count"])
     rupiah = float(metrics["rupiah_saved"])
 
     kpis = (
@@ -176,11 +176,11 @@ def collect_dataset(
             display=f"{format_number(kg_waste, 1)} kg",
         ),
         ExportKpi(
-            key="claims",
-            label="Klaim diselesaikan",
-            value=claims,
-            unit="klaim",
-            display=f"{format_number(claims)} klaim",
+            key="approved_count",
+            label="Pasokan disetujui",
+            value=approved_count,
+            unit="pasokan",
+            display=f"{format_number(approved_count)} pasokan",
             number_format="#,##0",
         ),
         ExportKpi(
@@ -432,7 +432,7 @@ def build_xlsx(dataset: ExportDataset) -> bytes:
         "Tanggal (ISO)",
         "Terselamatkan (kg)",
         "Terbuang (kg)",
-        "Klaim",
+        "Pasokan",
         "Nilai dampak (Rp)",
     )
     _write_table(
@@ -444,7 +444,7 @@ def build_xlsx(dataset: ExportDataset) -> bytes:
                 row["tanggal_iso"],
                 row["saved_kg"],
                 row["waste_kg"],
-                row["claim_count"],
+                row["listing_count"],
                 row["rupiah_value"],
             )
             for row in dataset.daily
@@ -566,7 +566,7 @@ def build_csv(dataset: ExportDataset) -> bytes:
     buffer = io.StringIO()
     writer = csv.writer(buffer, lineterminator="\r\n")
     writer.writerow(
-        ("Tanggal", "Tanggal (ISO)", "Terselamatkan (kg)", "Terbuang (kg)", "Klaim", "Nilai dampak (Rp)")
+        ("Tanggal", "Tanggal (ISO)", "Terselamatkan (kg)", "Terbuang (kg)", "Pasokan", "Nilai dampak (Rp)")
     )
     for row in dataset.daily:
         writer.writerow(
@@ -575,7 +575,7 @@ def build_csv(dataset: ExportDataset) -> bytes:
                 row["tanggal_iso"],
                 f"{row['saved_kg']:.2f}",
                 f"{row['waste_kg']:.2f}",
-                row["claim_count"],
+                row["listing_count"],
                 f"{row['rupiah_value']:.2f}",
             )
         )
@@ -643,9 +643,7 @@ def build_scope_label(role: str, org_name: Optional[str]) -> str:
         return "Seluruh organisasi (akun admin)"
     if not org_name:
         return "Data organisasi sendiri"
-    if role == "receiver":
-        return f"Klaim dan surplus diterima oleh {org_name}"
-    return f"Surplus dan limbah organisasi {org_name}"
+    return f"Pasokan dan limbah organisasi {org_name}"
 
 
 def build_city_label(city_name: Optional[str]) -> str:

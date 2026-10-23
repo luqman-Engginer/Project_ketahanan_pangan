@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Waste Log — FoodLoop ID{% endblock %}
+{% block title %}{{ 'Pemantauan Limbah' if read_only | default(false) else 'Limbah Pangan' }} — FoodLoop ID{% endblock %}
 {% from "components/kpi_card.html" import kpi_card %}
 {% from "components/data_table.html" import data_table %}
+{% set read_only = read_only | default(false) %}
 
 {% macro waste_actions(entry) %}
 <div class="inline-flex items-center gap-2">
@@ -17,18 +18,24 @@
 {% endmacro %}
 
 {% block content %}
-<div class="mb-6">
-  <h1 class="text-2xl font-bold text-ink">Waste Log</h1>
-  <p class="mt-1 text-sm text-ink-muted">Catat pangan yang terbuang beserta penyebabnya sebagai dasar analitik penghematan.</p>
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">{{ 'Pemantauan Limbah Supplier' if read_only else 'Limbah Pangan' }}</h1>
+    <p class="mt-1 text-sm text-ink-muted">{{ 'Mode baca-saja administrator untuk seluruh organisasi supplier.' if read_only else 'Catat pangan yang terbuang beserta penyebabnya sebagai dasar analitik penghematan.' }}</p>
+  </div>
+  {% if read_only %}
+  <a href="{{ url_for('admin.inventory_monitor') }}" class="btn btn-secondary">Lihat Stok</a>
+  {% else %}
+  <a href="{{ url_for('inventory.inventory_page') }}" class="btn btn-secondary">Buka Stok</a>
+  {% endif %}
 </div>
 
 <section aria-label="Ringkasan limbah" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-  {% for kpi in kpis %}
-  {{ kpi_card(kpi) }}
-  {% endfor %}
+  {% for kpi in kpis %}{{ kpi_card(kpi) }}{% endfor %}
 </section>
 
-<div class="mt-6 grid gap-6 lg:grid-cols-3">
+<div class="mt-6 grid gap-6 {{ 'lg:grid-cols-1' if read_only else 'lg:grid-cols-3' }}">
+  {% if not read_only %}
   <section aria-label="Formulir catat limbah" class="lg:col-span-1">
     {% set edit_row = (entries | selectattr('id', 'equalto', editing | int) | list) %}
     {% set edit_entry = edit_row[0] if edit_row else None %}
@@ -44,37 +51,31 @@
           <label for="category" class="mb-1.5 block text-sm font-medium text-ink">Kategori pangan</label>
           <select id="category" name="category" class="input" required>
             <option value="" disabled {{ 'selected' if not edit_entry }}>Pilih kategori</option>
-            {% for cat in categories %}
-            <option value="{{ cat }}" {{ 'selected' if edit_entry and edit_entry.category == cat }}>{{ cat }}</option>
-            {% endfor %}
+            {% for cat in categories %}<option value="{{ cat }}" {{ 'selected' if edit_entry and edit_entry.category == cat }}>{{ cat }}</option>{% endfor %}
           </select>
         </div>
         <div>
           <label for="qty_kg" class="mb-1.5 block text-sm font-medium text-ink">Jumlah (kg)</label>
-          <input id="qty_kg" name="qty_kg" type="number" step="0.1" min="0.1" class="input"
-                 placeholder="Contoh: 2.5" value="{{ edit_entry.qty_kg if edit_entry else '' }}" required>
+          <input id="qty_kg" name="qty_kg" type="number" step="0.1" min="0.1" class="input" placeholder="Contoh: 2.5" value="{{ edit_entry.qty_kg if edit_entry else '' }}" required>
         </div>
         <div>
           <label for="reason" class="mb-1.5 block text-sm font-medium text-ink">Penyebab</label>
           <select id="reason" name="reason" class="input" required>
             <option value="" disabled {{ 'selected' if not edit_entry }}>Pilih penyebab</option>
-            {% for reason in reasons %}
-            <option value="{{ reason }}" {{ 'selected' if edit_entry and edit_entry.reason == reason }}>{{ reason }}</option>
-            {% endfor %}
+            {% for reason in reasons %}<option value="{{ reason }}" {{ 'selected' if edit_entry and edit_entry.reason == reason }}>{{ reason }}</option>{% endfor %}
           </select>
         </div>
       </div>
 
       <div class="mt-5 flex gap-2">
         <button type="submit" class="btn btn-primary flex-1">{{ 'Simpan perubahan' if edit_entry else 'Simpan log limbah' }}</button>
-        {% if edit_entry %}
-        <a href="{{ url_for('waste.waste_page') }}" class="btn btn-ghost">Batal</a>
-        {% endif %}
+        {% if edit_entry %}<a href="{{ url_for('waste.waste_page') }}" class="btn btn-ghost">Batal</a>{% endif %}
       </div>
     </form>
   </section>
+  {% endif %}
 
-  <section aria-label="Tabel limbah" class="lg:col-span-2">
+  <section aria-label="Tabel limbah" class="{{ 'lg:col-span-3' if read_only else 'lg:col-span-2' }}">
     <div class="mb-3">
       <h2 class="text-base font-semibold text-ink">Riwayat limbah</h2>
       <p class="text-sm text-ink-muted">Entri terbaru berada di urutan paling atas.</p>
@@ -86,9 +87,9 @@
       {'key': 'reason', 'label': 'Penyebab'}
     ] %}
     {{ data_table(waste_columns, entries, 'Belum ada log limbah',
-       'Setiap kali pangan terbuang, catat di sini agar dampaknya terukur.',
-       'Buka inventory', '/inventory', row_actions=waste_actions) }}
+       'Setiap kali pangan terbuang, catat agar dampaknya terukur.',
+       'Buka stok', url_for('admin.inventory_monitor') if read_only else url_for('inventory.inventory_page'),
+       row_actions=None if read_only else waste_actions) }}
   </section>
 </div>
 {% endblock %}
-

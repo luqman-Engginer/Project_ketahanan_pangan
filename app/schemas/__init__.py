@@ -1,9 +1,9 @@
 """Validation schemas package."""
 from app.schemas.payloads import (
-    ClaimStatusUpdateSchema,
     CommentCreateSchema,
     InventoryItemCreateSchema,
     SurplusListingCreateSchema,
+    SurplusReviewSchema,
     UserLoginSchema,
     UserRegisterSchema,
     WasteLogCreateSchema,
@@ -14,7 +14,7 @@ __all__ = [
     "UserLoginSchema",
     "InventoryItemCreateSchema",
     "SurplusListingCreateSchema",
-    "ClaimStatusUpdateSchema",
+    "SurplusReviewSchema",
     "WasteLogCreateSchema",
     "CommentCreateSchema",
 ]

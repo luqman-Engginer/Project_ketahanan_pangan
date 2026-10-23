@@ -55,7 +55,7 @@ def _stream_events(subscriber: Subscriber) -> Iterator[str]:
 
 @bp.get("/events")
 def events() -> Union[Response, tuple[Any, int]]:
-    """Stream ``surplus_new``, ``claim_update``, ``expiry_alert``, and ``kpi_update`` events.
+    """Stream ``surplus_new``, ``review_update``, ``expiry_alert``, and ``kpi_update`` events.
 
     The endpoint requires an authenticated session; anonymous clients receive a
     ``401`` JSON body instead of a redirect so ``EventSource`` fails fast.

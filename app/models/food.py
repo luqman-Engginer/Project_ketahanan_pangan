@@ -1,4 +1,4 @@
-"""Food categories, inventory, surplus listings, claims, waste logs, and impact factors."""
+"""Food categories, inventory, surplus listings, waste logs, and impact factors."""
 from __future__ import annotations
 
 from datetime import date, datetime
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from app.models.activity import Comment
     from app.models.location import City
     from app.models.organization import Organization
+    from app.models.user import User
 
 
 class FoodCategory(db.Model):
@@ -38,7 +39,7 @@ class FoodCategory(db.Model):
 
 
 class InventoryItem(db.Model):
-    """Stock item tracked by donor organizations with expiry monitoring."""
+    """Stock item tracked by supplier organizations with expiry monitoring."""
 
     __tablename__ = "inventory_items"
     __table_args__ = (
@@ -68,11 +69,12 @@ class InventoryItem(db.Model):
 
 
 class SurplusListing(db.Model):
-    """Surplus food post published by donors for claims by receivers."""
+    """Surplus food post submitted by a supplier and reviewed by an admin."""
 
     __tablename__ = "surplus_listings"
     __table_args__ = (
         Index("ix_surplus_listings_status_city_pickup", "status", "city_id", "pickup_before"),
+        Index("ix_surplus_listings_review_status_created_at", "review_status", "created_at"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -94,45 +96,28 @@ class SurplusListing(db.Model):
         nullable=False,
         default="available",
     )
+    review_status: Mapped[str] = mapped_column(
+        Enum("pending", "approved", "rejected", name="pasokan_review_status_enum"),
+        nullable=False,
+        default="pending",
+        server_default="pending",
+    )
+    reviewed_by: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    reviewed_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    review_note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationships
     organization: Mapped[Organization] = relationship("Organization", back_populates="surplus_listings")
     category: Mapped[FoodCategory] = relationship("FoodCategory", back_populates="surplus_listings")
     city: Mapped[City] = relationship("City", back_populates="surplus_listings")
-    claims: Mapped[list[Claim]] = relationship("Claim", back_populates="listing", cascade="all, delete-orphan")
+    reviewer: Mapped[Optional[User]] = relationship("User", foreign_keys=[reviewed_by])
     comments: Mapped[list[Comment]] = relationship("Comment", back_populates="listing", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
-        return f"<SurplusListing id={self.id} title={self.title} status={self.status}>"
-
-
-class Claim(db.Model):
-    """Claim request created by a receiver organisation for a surplus listing."""
-
-    __tablename__ = "claims"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    listing_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("surplus_listings.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    receiver_org_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    status: Mapped[str] = mapped_column(
-        Enum("pending", "approved", "picked_up", "cancelled", name="claim_status_enum"),
-        nullable=False,
-        default="pending",
-    )
-    claimed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-    picked_up_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
-
-    # Relationships
-    listing: Mapped[SurplusListing] = relationship("SurplusListing", back_populates="claims")
-    receiver_org: Mapped[Organization] = relationship("Organization", back_populates="claims", foreign_keys=[receiver_org_id])
-
-    def __repr__(self) -> str:
-        return f"<Claim id={self.id} listing_id={self.listing_id} status={self.status}>"
+        return f"<SurplusListing id={self.id} title={self.title} review={self.review_status}>"
 
 
 class WasteLog(db.Model):

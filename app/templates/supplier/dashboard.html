@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Supplier — FoodLoop ID{% endblock %}
+{% from "components/kpi_card.html" import kpi_card %}
+{% from "components/chart_card.html" import chart_card %}
+{% from "components/data_table.html" import data_table %}
+{% from "components/status_badge.html" import status_badge %}
+
+{% macro listing_actions(listing) %}
+<a href="{{ url_for('surplus.surplus_detail', listing_id=listing.id) }}" class="btn btn-ghost btn-sm">Detail</a>
+{% endmacro %}
+
+{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-ink">Dashboard Supplier</h1>
+    <p class="mt-1 text-sm text-ink-muted">{{ organization.name if organization else 'Organisasi Anda' }} · dampak dihitung dari pasokan yang disetujui admin.</p>
+  </div>
+  <div class="flex flex-wrap gap-2">
+    <a href="{{ url_for('surplus.surplus_board') }}" class="btn btn-secondary">Pasokan Saya</a>
+    <a href="{{ url_for('surplus.surplus_board') }}" class="btn btn-primary">Kirim Pasokan</a>
+  </div>
+</div>
+
+<div class="mb-6 grid gap-3 sm:grid-cols-3">
+  <div class="card flex items-center justify-between p-4">
+    <span class="text-sm font-medium text-ink-muted">Menunggu review</span>
+    <span class="text-2xl font-bold text-warning-ink">{{ review_counts.pending }}</span>
+  </div>
+  <div class="card flex items-center justify-between p-4">
+    <span class="text-sm font-medium text-ink-muted">Disetujui</span>
+    <span class="text-2xl font-bold text-success-ink">{{ review_counts.approved }}</span>
+  </div>
+  <div class="card flex items-center justify-between p-4">
+    <span class="text-sm font-medium text-ink-muted">Ditolak</span>
+    <span class="text-2xl font-bold text-danger-ink">{{ review_counts.rejected }}</span>
+  </div>
+</div>
+
+<section aria-label="KPI dampak" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  {% for kpi in kpis %}{{ kpi_card(kpi) }}{% endfor %}
+</section>
+
+<section aria-label="Grafik dampak" class="mt-6 grid gap-5 md:grid-cols-2">
+  <div class="md:col-span-2">{{ chart_card('Tren pasokan terselamatkan', 'chart-trend', 'kg per hari, 14 hari terakhir') }}</div>
+  {{ chart_card('Kontribusi kategori', 'chart-kategori', 'kg terselamatkan') }}
+  <div class="card p-5">
+    <h2 class="text-sm font-semibold text-ink">Cara meningkatkan dampak</h2>
+    <ul class="mt-3 space-y-2 text-sm text-ink-muted">
+      <li>Pastikan berat aktual dan kategori pasokan akurat.</li>
+      <li>Perbarui pasokan bila ada perubahan jumlah.</li>
+      <li>Catat stok mendekati kedaluwarsa sebelum menjadi limbah.</li>
+    </ul>
+  </div>
+</section>
+
+<section aria-label="Pasokan terbaru" class="mt-8">
+  <div class="mb-3 flex items-center justify-between gap-3">
+    <div><h2 class="text-base font-semibold text-ink">Pasokan terbaru</h2><p class="text-sm text-ink-muted">Lima pasokan terakhir dari organisasi Anda.</p></div>
+    <a href="{{ url_for('surplus.surplus_board') }}" class="text-sm font-semibold text-primary-700 hover:underline">Lihat semua</a>
+  </div>
+  {% set columns = [
+    {'key': 'title', 'label': 'Pasokan'},
+    {'key': 'category', 'label': 'Kategori'},
+    {'key': 'qty', 'label': 'Jumlah'},
+    {'key': 'city', 'label': 'Kota'},
+    {'key': 'review_status', 'label': 'Review', 'badge': True},
+    {'key': 'created_at', 'label': 'Dikirim'}
+  ] %}
+  {{ data_table(columns, recent_listings, 'Belum ada pasokan', 'Kirim pasokan pertama Anda untuk mulai menghitung dampak.', 'Kirim pasokan', url_for('surplus.surplus_board'), row_actions=listing_actions) }}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.min.js') }}"></script>
+<script nonce="{{ csp_nonce() }}">
+  (function () {
+    var cssVar = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+    Chart.defaults.font.family = "Poppins, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = cssVar('--color-ink-muted');
+    var gridColor = cssVar('--color-border');
+    new Chart(document.getElementById('chart-trend'), {
+      type: 'line',
+      data: { labels: {{ trend['labels'] | tojson }}, datasets: [{ label: 'kg terselamatkan', data: {{ trend['values'] | tojson }}, borderColor: cssVar('--color-primary-600'), backgroundColor: cssVar('--color-primary-400') + '33', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, border: { display: false } }, y: { beginAtZero: true, grid: { color: gridColor }, border: { display: false } } } }
+    });
+    new Chart(document.getElementById('chart-kategori'), {
+      type: 'doughnut',
+      data: { labels: {{ kategori['labels'] | tojson }}, datasets: [{ data: {{ kategori['values'] | tojson }}, backgroundColor: [cssVar('--color-primary-600'), cssVar('--color-primary-400'), cssVar('--color-success'), cssVar('--color-warning'), cssVar('--color-danger'), cssVar('--color-ink-muted')], borderWidth: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8 } } } }
+    });
+  })();
+</script>
+{% endblock %}

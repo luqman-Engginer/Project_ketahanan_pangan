@@ -6,9 +6,13 @@
 <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-warning-soft text-warning-ink">
   <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 </span>
-{% elif type == 'claim' %}
+{% elif type == 'review_update' %}
 <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary-700">
-  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 12h6"/><path d="M9 16h4"/></svg>
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+</span>
+{% elif type == 'surplus_new' %}
+<span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-warning-soft text-warning-ink">
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20"/><path d="M2 12h20"/></svg>
 </span>
 {% else %}
 <span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-success-soft text-success-ink">
@@ -57,7 +61,7 @@
     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
   </span>
   <h3 class="mt-4 text-base font-semibold text-ink">Tidak ada notifikasi</h3>
-  <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">Semua sudah dibaca. Peringatan kedaluwarsa dan klaim baru akan muncul di sini.</p>
+  <p class="mx-auto mt-1 max-w-md text-sm text-ink-muted">Peringatan kedaluwarsa, pasokan baru, dan hasil review akan muncul di sini.</p>
   <a href="{{ url_for('notification.notification_page', show='semua') }}" class="btn btn-primary mt-5">Lihat semua</a>
 </div>
 {% endif %}

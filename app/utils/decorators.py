@@ -12,7 +12,7 @@ def role_required(*roles: str) -> Callable[..., Any]:
     """Ensure the user is logged in and possesses one of the authorized roles.
 
     Args:
-        *roles: One or more role names ('admin', 'donor', 'receiver').
+        *roles: One or more role names ('admin', 'supplier').
 
     Returns:
         Decorated view function.
@@ -24,7 +24,7 @@ def role_required(*roles: str) -> Callable[..., Any]:
             if not current_user.is_authenticated:
                 flash("Silakan masuk terlebih dahulu untuk mengakses halaman ini.", "warning")
                 return redirect(url_for("auth.login", next=request.url))
-            if current_user.role not in roles and current_user.role != "admin":
+            if current_user.role not in roles:
                 abort(403)
             return view_func(*args, **kwargs)
 

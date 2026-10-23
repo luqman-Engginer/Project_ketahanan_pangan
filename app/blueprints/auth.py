@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Union
 
-from flask import Blueprint, Response, flash, redirect, render_template, request, url_for
+from flask import Blueprint, Response, flash, redirect, render_template, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.extensions import limiter
@@ -43,6 +43,7 @@ def login() -> Union[str, Response]:
             return {"error": INVALID_CREDENTIALS}, 401
 
         login_user(user)
+        session.permanent = True
         audit_service.log_action("LOGIN_SUCCESS", "user", user.id)
         return {
             "message": "Login berhasil",
@@ -54,6 +55,7 @@ def login() -> Union[str, Response]:
         user = auth_service.authenticate_user(form.email.data, form.password.data)
         if user:
             login_user(user, remember=form.remember.data)
+            session.permanent = True
             audit_service.log_action("LOGIN_SUCCESS", "user", user.id)
             flash(f"Selamat datang kembali, {user.name}!", "success")
             next_url = safe_redirect_target(request.args.get("next"))
@@ -71,7 +73,9 @@ def register() -> Union[str, Response]:
     if current_user.is_authenticated:
         return redirect(url_for("main.dashboard"))
 
+    cities = auth_service.list_city_choices()
     form = RegisterForm()
+    form.city_id.choices = [(city["id"], city["name"]) for city in cities]
 
     # Handle JSON API register request
     if request.is_json:
@@ -84,7 +88,6 @@ def register() -> Union[str, Response]:
         try:
             user = auth_service.register_user(
                 name=payload.name,
-                role=payload.role,
                 email=payload.email,
                 password=payload.password,
                 city_id=payload.city_id,
@@ -96,6 +99,7 @@ def register() -> Union[str, Response]:
             return {"error": REGISTRATION_FAILED}, 400
 
         login_user(user)
+        session.permanent = True
         audit_service.log_action("REGISTER_ORGANIZATION", "user", user.id)
         return {
             "message": "Pendaftaran berhasil",
@@ -107,20 +111,28 @@ def register() -> Union[str, Response]:
         try:
             user = auth_service.register_user(
                 name=form.name.data,
-                role=form.role.data,
                 email=form.email.data,
                 password=form.password.data,
+                city_id=form.city_id.data,
+                address=form.address.data,
+                phone=form.phone.data,
             )
         except ValueError as err:
             log_exception("Register user failed", err)
             flash(str(err), "danger")
         else:
             login_user(user)
+            session.permanent = True
             audit_service.log_action("REGISTER_ORGANIZATION", "user", user.id)
             flash("Akun dan organisasi Anda berhasil dibuat! Selamat datang di FoodLoop ID.", "success")
             return redirect(url_for("main.dashboard"))
 
-    return render_template("auth/register.html", layout="public", form=form)
+    return render_template(
+        "auth/register.html",
+        layout="public",
+        form=form,
+        cities=cities,
+    )
 
 
 @bp.post("/logout")

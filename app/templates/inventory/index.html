@@ -3,6 +3,7 @@
 {% from "components/kpi_card.html" import kpi_card %}
 {% from "components/data_table.html" import data_table %}
 {% from "components/status_badge.html" import status_badge %}
+{% set read_only = read_only | default(false) %}
 
 {% macro item_actions(item) %}
 <div class="inline-flex items-center gap-2">
@@ -23,10 +24,14 @@
 {% block content %}
 <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
   <div>
-    <h1 class="text-2xl font-bold text-ink">Inventory &amp; Pelacakan Kedaluwarsa</h1>
-    <p class="mt-1 text-sm text-ink-muted">Stok terpantau dengan peringatan H-3 dan H-1 beserta saran FEFO (First Expired First Out).</p>
+    <h1 class="text-2xl font-bold text-ink">{{ 'Stok Seluruh Supplier' if read_only else 'Stok & Pelacakan Kedaluwarsa' }}</h1>
+    <p class="mt-1 text-sm text-ink-muted">{{ 'Mode baca-saja administrator untuk seluruh organisasi supplier.' if read_only else 'Stok terpantau dengan peringatan H-3 dan H-1 beserta saran FEFO.' }}</p>
   </div>
-  <a href="/waste" class="btn btn-secondary">Buka Waste Log</a>
+  {% if read_only %}
+  <a href="{{ url_for('admin.waste_monitor') }}" class="btn btn-secondary">Lihat Limbah</a>
+  {% else %}
+  <a href="{{ url_for('waste.waste_page') }}" class="btn btn-secondary">Buka Limbah</a>
+  {% endif %}
 </div>
 
 <section aria-label="Ringkasan stok" class="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -35,7 +40,8 @@
   {% endfor %}
 </section>
 
-<div class="mt-6 grid gap-6 lg:grid-cols-3">
+<div class="mt-6 grid gap-6 {{ 'lg:grid-cols-1' if read_only else 'lg:grid-cols-3' }}">
+  {% if not read_only %}
   <section aria-label="Formulir item" class="lg:col-span-1">
     {% set current = items | selectattr('id', 'equalto', editing | int) | list %}
     {% set edit_row = current[0] if current else None %}
@@ -95,18 +101,18 @@
       </div>
     </form>
   </section>
+  {% endif %}
 
-  <section aria-label="Daftar stok" class="lg:col-span-2">
+  <section aria-label="Daftar stok" class="{{ 'lg:col-span-3' if read_only else 'lg:col-span-2' }}">
+    {% if not read_only %}
     <form method="get" action="{{ url_for('inventory.inventory_page') }}" class="mb-4 flex flex-col gap-3 sm:flex-row">
       <input type="hidden" name="status" value="{{ active_filter }}">
       <label class="relative block flex-1">
         <span class="sr-only">Cari stok</span>
-        <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="search" name="q" value="{{ search_query }}" class="input pl-10" placeholder="Cari nama item atau kategori…" aria-label="Cari nama item atau kategori">
+        <input type="search" name="q" value="{{ search_query }}" class="input" placeholder="Cari nama item atau kategori…" aria-label="Cari nama item atau kategori">
       </label>
       <button type="submit" class="btn btn-secondary">Cari</button>
     </form>
-
     <div class="mb-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter kedaluwarsa">
       {% for f in filters %}
       <a href="{{ url_for('inventory.inventory_page', status=f.key, q=search_query) }}"
@@ -114,6 +120,7 @@
          {% if active_filter == f.key %}aria-current="true"{% endif %}>{{ f.label }}</a>
       {% endfor %}
     </div>
+    {% endif %}
 
     {% set inv_columns = [
       {'key': 'name', 'label': 'Item'},
@@ -124,8 +131,9 @@
       {'key': 'org', 'label': 'Organisasi'}
     ] %}
     {{ data_table(inv_columns, items, 'Belum ada item',
-       'Stok yang Anda catat akan muncul di sini beserta peringatan kedaluwarsanya.',
-       'Lihat papan surplus', '/surplus', row_actions=item_actions) }}
+       'Stok yang dicatat supplier akan muncul di sini beserta peringatan kedaluwarsanya.',
+       'Lihat pasokan', url_for('admin.pasokan_board') if read_only else url_for('surplus.surplus_board'),
+       row_actions=None if read_only else item_actions) }}
   </section>
 </div>
 

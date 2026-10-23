@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Review {{ listing.title }} — FoodLoop ID{% endblock %}
+{% from "components/status_badge.html" import status_badge %}
+
+{% block content %}
+<nav class="mb-5 flex flex-wrap items-center gap-2 text-sm text-ink-muted" aria-label="Breadcrumb">
+  <a href="{{ url_for('admin.index') }}" class="transition hover:text-ink">Dashboard Admin</a>
+  <span aria-hidden="true">/</span>
+  <a href="{{ url_for('admin.pasokan_board') }}" class="transition hover:text-ink">Review Pasokan</a>
+  <span aria-hidden="true">/</span>
+  <span class="text-ink">{{ listing.title }}</span>
+</nav>
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="space-y-6 lg:col-span-2">
+    <section class="card p-6">
+      <div class="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 class="text-2xl font-bold text-ink">{{ listing.title }}</h1>
+          <p class="mt-1 text-sm text-ink-muted">Dikirim {{ listing.created_at }} oleh {{ listing.supplier }}</p>
+        </div>
+        {{ status_badge(listing.review_status) }}
+      </div>
+      <p class="mt-4 text-sm leading-relaxed text-ink-muted sm:text-base">{{ listing.description }}</p>
+      <dl class="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-5 sm:grid-cols-4">
+        <div><dt class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Jumlah</dt><dd class="mt-1 text-lg font-bold text-ink">{{ listing.qty }} {{ listing.unit }}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Berat</dt><dd class="mt-1 text-lg font-bold text-ink">{{ listing.qty_kg }} kg</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Kota</dt><dd class="mt-1 text-lg font-bold text-ink">{{ listing.city }}</dd></div>
+        <div><dt class="text-xs font-semibold uppercase tracking-wide text-ink-muted">Batas ambil</dt><dd class="mt-1 text-sm font-bold leading-snug text-danger-ink">{{ listing.pickup_before }}</dd></div>
+      </dl>
+      <div class="mt-5 rounded-2xl bg-bg p-4 text-sm text-ink-muted">
+        <p class="font-medium text-ink">{{ listing.address }}, {{ listing.city }}</p>
+        <p class="mt-1">Kontak supplier: {{ listing.phone }}</p>
+      </div>
+    </section>
+
+    {% include "admin/_review_row.html" %}
+  </div>
+
+  <aside class="lg:col-span-1">
+    <div class="space-y-4 lg:sticky lg:top-24">
+      <section class="card p-6">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">Ringkasan</h2>
+        <p class="mt-4 text-4xl font-bold text-ink">{{ listing.qty_kg }}<span class="ml-1 text-base font-semibold text-ink-muted">kg</span></p>
+        <p class="mt-1 text-sm text-ink-muted">{{ listing.category }} · {{ listing.city }}</p>
+        <div class="mt-4 border-t border-line pt-4 text-sm text-ink-muted">
+          <p>Status: <span class="font-semibold text-ink">{{ listing.review_label }}</span></p>
+          {% if listing.reviewed_at %}<p class="mt-1">Ditinjau: {{ listing.reviewed_at }}</p>{% endif %}
+        </div>
+      </section>
+      <section class="card p-6">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-ink-muted">Supplier</h2>
+        <div class="mt-3 flex items-center gap-3">
+          <span class="grid h-11 w-11 place-items-center rounded-2xl bg-primary-soft text-sm font-bold text-primary-700">{{ listing.supplier[:2] | upper }}</span>
+          <div class="min-w-0"><p class="truncate text-sm font-semibold text-ink">{{ listing.supplier }}</p><p class="text-xs text-ink-muted">{{ listing.city }}</p></div>
+        </div>
+        <p class="mt-4 text-xs leading-relaxed text-ink-muted">Admin tidak dapat mengubah atau menghapus pasokan supplier. Keputusan review bersifat final.</p>
+      </section>
+    </div>
+  </aside>
+</div>
+{% endblock %}
