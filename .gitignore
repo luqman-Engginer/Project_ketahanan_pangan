@@ -1,6 +1,13 @@
 .env
+.env.*
+!.env.example
 .venv/
 venv/
+instance/
+backups/
+*.sqlite3
+.coverage
+htmlcov/
 __pycache__/
 *.py[cod]
 *.so
