@@ -141,18 +141,30 @@ def review_pasokan(listing_id: int) -> Response:
 @login_required
 @role_required("admin")
 def inventory_monitor() -> str:
-    """Show all supplier inventory in read-only mode."""
-    items = inventory_service.get_inventory_items(org_id=None)
+    """Show all supplier inventory in read-only mode with search/filter/pagination."""
+    active = request.args.get("status", "semua")
+    search = request.args.get("q", "").strip()
+    page = max(1, int(request.args.get("page", "1") or 1))
+    if active not in {"semua", "h1", "h3", "kedaluwarsa"}:
+        active = "semua"
+    items, pagination = inventory_service.get_inventory_items_paginated(
+        org_id=None,
+        status_filter=active,
+        search_query=search if search else None,
+        page=page,
+        per_page=10,
+    )
     return render_template(
         "inventory/index.html",
         items=items,
         kpis=inventory_service.get_inventory_kpis(org_id=None),
         categories=inventory_service.get_category_choices(),
-        filters=[],
-        active_filter="semua",
-        search_query="",
+        filters=[{"key": k, "label": v} for k, v in {"semua": "Semua status", "h3": "H-3", "h1": "H-1", "kedaluwarsa": "Kedaluwarsa"}.items()],
+        active_filter=active,
+        search_query=search,
         editing=None,
         read_only=True,
+        pagination=pagination,
     )
 
 
