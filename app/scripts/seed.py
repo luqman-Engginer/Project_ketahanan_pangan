@@ -1,6 +1,9 @@
 """Master-data seeding and administrator creation commands."""
 from __future__ import annotations
 
+import random
+import string
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -8,8 +11,15 @@ import click
 from flask.cli import with_appcontext
 
 from app.extensions import db
-from app.models import City, FoodCategory, ImpactFactor, Province
+from app.models import City, FoodCategory, ImpactFactor, Organization, Province, SurplusListing, User
 from app.services import auth_service
+from app.utils.passwords import hash_password
+
+
+def _rand_password(length: int = 12) -> str:
+    chars = string.ascii_letters + string.digits
+    return "".join(random.choice(chars) for _ in range(length))
+
 
 PROVINCES_DATA: list[tuple[int, str]] = [
     (11, "Aceh"), (12, "Sumatera Utara"), (13, "Sumatera Barat"), (14, "Riau"),
@@ -88,6 +98,109 @@ def seed_command() -> None:
 
     db.session.commit()
     click.secho("Master data FoodLoop ID berhasil dimuat.", fg="green")
+
+
+@click.command("seed-demo")
+@with_appcontext
+def seed_demo_command() -> None:
+    """Seed demo data (1 admin, 3 supplier) and +/- 40 pasokan with random passwords printed once."""
+    # ensure master
+    seed_command.callback()
+
+    passwords = {}
+
+    # admin
+    if not User.query.filter_by(email="admin@foodloop.id").first():
+        pw = _rand_password(12)
+        admin = User(
+            name="Admin FoodLoop",
+            email="admin@foodloop.id",
+            role="admin",
+            password_hash=hash_password(pw),
+            email_verified_at=datetime.utcnow(),
+        )
+        db.session.add(admin)
+        passwords["admin@foodloop.id"] = pw
+
+    # suppliers
+    suppliers = [
+        ("supplier1@foodloop.id", "Toko Sejahtera", 3171),
+        ("supplier2@foodloop.id", "Warung Makmur", 3273),
+        ("supplier3@foodloop.id", "Restoran Berkah", 3578),
+    ]
+    orgs = []
+    for email, org_name, city_id in suppliers:
+        if not User.query.filter_by(email=email).first():
+            pw = _rand_password(12)
+            org = Organization(
+                name=org_name,
+                type="supplier",
+                city_id=city_id,
+                address=f"Jl. Demo {org_name}",
+                verified=True,
+                verified_at=datetime.utcnow(),
+            )
+            db.session.add(org)
+            db.session.flush()
+            user = User(
+                name=f"PIC {org_name}",
+                email=email,
+                role="supplier",
+                org_id=org.id,
+                password_hash=hash_password(pw),
+                email_verified_at=datetime.utcnow(),
+            )
+            db.session.add(user)
+            passwords[email] = pw
+            orgs.append(org)
+
+    db.session.flush()
+    cities = City.query.all()
+    cats = FoodCategory.query.all()
+    if not orgs:
+        orgs = Organization.query.filter_by(type="supplier").limit(3).all()
+
+    random.seed(2026)
+    for i in range(40):
+        org = random.choice(orgs)
+        cat = random.choice(cats)
+        city = random.choice(cities) if cities else None
+        qty = round(random.uniform(2, 15), 2)
+        unit = cat.unit_default or "kg"
+        qty_kg = qty if unit == "kg" else round(qty * 0.25, 2)
+        listing = SurplusListing(
+            org_id=org.id,
+            category_id=cat.id,
+            title=f"Pasokan Demo {i+1:03d}",
+            qty=Decimal(str(qty)),
+            unit=unit,
+            qty_kg=Decimal(str(qty_kg)),
+            pickup_before=datetime.utcnow() + timedelta(hours=random.randint(12, 72)),
+            city_id=city.id if city else 3171,
+            notes="Data demo untuk pengujian.",
+            status="available",
+            review_status=random.choice(["pending", "approved", "rejected"]),
+        )
+        db.session.add(listing)
+
+    db.session.commit()
+    click.secho("Demo data seeded.", fg="green")
+    for k, v in passwords.items():
+        click.secho(f"{k}: {v}", fg="yellow")
+
+
+@click.command("demo-clear")
+@with_appcontext
+def demo_clear_command() -> None:
+    """Hapus data demo saja."""
+    # delete pasokan demo
+    SurplusListing.query.filter(SurplusListing.title.like("Pasokan Demo%")).delete()
+    # delete demo users/orgs
+    User.query.filter(User.email.like("%@foodloop.id")).filter(User.email != "admin@foodloop.id").delete()
+    Organization.query.filter(Organization.name.like("%Demo%") | Organization.name.in_(["Toko Sejahtera", "Warung Makmur", "Restoran Berkah"])).delete()
+    db.session.commit()
+    click.secho("Data demo dihapus.", fg="green")
+
 
 
 @click.command("create-admin")

@@ -92,9 +92,11 @@ def _register_blueprints(app: Flask) -> None:
 
 def _register_commands(app: Flask) -> None:
     """Register custom Flask CLI commands."""
-    from app.scripts.seed import create_admin_command, seed_command
+    from app.scripts.seed import create_admin_command, demo_clear_command, seed_command, seed_demo_command
 
     app.cli.add_command(seed_command)
+    app.cli.add_command(seed_demo_command)
+    app.cli.add_command(demo_clear_command)
     app.cli.add_command(create_admin_command)
 
 
