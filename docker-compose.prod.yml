@@ -1,0 +1,44 @@
+# Production: jalankan dengan
+#   docker compose -f docker-compose.prod.yml --env-file .env.production up -d --build
+services:
+  app:
+    build: .
+    command: gunicorn -k gevent -w 1 -b 0.0.0.0:5000 wsgi:app
+    restart: unless-stopped
+    environment:
+      FLASK_APP: wsgi:app
+      FLASK_DEBUG: "0"
+      SECRET_KEY: ${SECRET_KEY:?isi SECRET_KEY}
+      SESSION_COOKIE_SECURE: "true"
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-foodloop}:${MYSQL_PASSWORD:?isi MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE:-foodloop}?charset=utf8mb4
+    ports:
+      - "127.0.0.1:5000:5000"   # pasang reverse proxy HTTPS (Caddy/Nginx) di depannya
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 25s
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?isi MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-foodloop}
+      MYSQL_USER: ${MYSQL_USER:-foodloop}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?isi MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  mysql_data:

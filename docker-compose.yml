@@ -10,7 +10,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:-}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
       MAX_CONTENT_LENGTH_MB: ${MAX_CONTENT_LENGTH_MB:-16}
-      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-foodloop}:${MYSQL_PASSWORD:-foodloop}@mysql:3306/${MYSQL_DATABASE:-foodloop}?charset=utf8mb4
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-foodloop}:${MYSQL_PASSWORD:?isi MYSQL_PASSWORD di .env}@mysql:3306/${MYSQL_DATABASE:-foodloop}?charset=utf8mb4
     volumes:
       - .:/srv
     depends_on:
@@ -30,12 +30,10 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?isi MYSQL_ROOT_PASSWORD di .env}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-foodloop}
       MYSQL_USER: ${MYSQL_USER:-foodloop}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-foodloop}
-    ports:
-      - "3306:3306"
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?isi MYSQL_PASSWORD di .env}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
