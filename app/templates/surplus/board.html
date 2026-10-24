@@ -1,7 +1,8 @@
 {% extends "base.html" %}
-{% block title %}{{ 'Review Pasokan' if mode == 'admin' else 'Pasokan Saya' }} — FoodLoop ID{% endblock %}
+{% block title %}{{ 'Review Pasokan' if mode == 'admin' else 'Pasokan Saya' }} - FoodLoop ID{% endblock %}
 {% from "components/status_badge.html" import status_badge %}
 {% from "components/empty_state.html" import empty_state %}
+{% from "components/pagination.html" import render_pagination %}
 {% set board_endpoint = 'admin.pasokan_board' if mode == 'admin' else 'surplus.surplus_board' %}
 {% set detail_endpoint = 'admin.pasokan_detail' if mode == 'admin' else 'surplus.surplus_detail' %}
 
@@ -118,6 +119,7 @@
   </article>
   {% endfor %}
 </div>
+{{ render_pagination(pagination, board_endpoint, {'q': search_query, 'category': selected_category, 'city': selected_city, 'status': selected_status if selected_status and selected_status != 'semua' else None}) }}
 {% else %}
 {{ empty_state('Belum ada pasokan', 'Pasokan yang dikirim akan muncul di sini beserta status review-nya.', 'Muat ulang', url_for(board_endpoint)) }}
 {% endif %}
