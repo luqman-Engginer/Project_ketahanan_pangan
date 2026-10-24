@@ -35,6 +35,13 @@ def landing() -> str:
     return render_template("landing.html", layout="public", features=LANDING_FEATURES, steps=LANDING_STEPS)
 
 
+@bp.get("/tentang")
+def tentang() -> str:
+    """Render static about page without statistics."""
+    return render_template("about.html", layout="public")
+
+
+
 @bp.get("/dashboard")
 @login_required
 def dashboard() -> Response:
