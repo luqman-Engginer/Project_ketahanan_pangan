@@ -114,6 +114,9 @@ def create_app(config_class: type[Config] = Config) -> Flask:
             app.config["SECRET_KEY"] = secrets.token_hex(32)
         else:
             raise RuntimeError("SECRET_KEY wajib diisi melalui environment pada mode production.")
+    if not app.config.get("DEBUG") and not app.config.get("TESTING"):
+        if not app.config.get("SECRET_KEY"):
+            raise RuntimeError("Production menolak start bila SECRET_KEY kosong.")
     _register_extensions(app)
     _register_blueprints(app)
     _register_commands(app)
