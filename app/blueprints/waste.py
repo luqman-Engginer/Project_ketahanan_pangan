@@ -54,10 +54,12 @@ def waste_page() -> Union[str, Response, tuple[dict[str, Any], int]]:
                     reason=reason,
                 )
                 flash(f"Log limbah #{entry.id} berhasil diperbarui.", "success")
+                return redirect(url_for("waste.waste_page"))
             elif action == "delete":
                 log_id = int(request.form.get("log_id", "0"))
                 waste_service.delete_waste_log(log_id=log_id, org_id=org_id)
                 flash("Log limbah berhasil dihapus.", "success")
+                return redirect(url_for("waste.waste_page"))
             elif cat_name and qty_kg_str and reason:
                 waste_service.add_waste_log(
                     org_id=org_id,
@@ -66,6 +68,7 @@ def waste_page() -> Union[str, Response, tuple[dict[str, Any], int]]:
                     reason=reason,
                 )
                 flash("Log limbah berhasil dicatat ke database.", "success")
+                return redirect(url_for("waste.waste_page"))
         except (ValueError, PermissionError, LookupError) as err:
             flash(f"Gagal memproses log limbah: {err}", "danger")
 

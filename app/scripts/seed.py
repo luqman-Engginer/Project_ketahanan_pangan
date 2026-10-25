@@ -117,7 +117,6 @@ def seed_demo_command() -> None:
             email="admin@foodloop.id",
             role="admin",
             password_hash=hash_password(pw),
-            email_verified_at=datetime.utcnow(),
         )
         db.session.add(admin)
         passwords["admin@foodloop.id"] = pw
@@ -137,7 +136,6 @@ def seed_demo_command() -> None:
                 type="supplier",
                 city_id=city_id,
                 address=f"Jl. Demo {org_name}",
-                verified=True,
                 verified_at=datetime.utcnow(),
             )
             db.session.add(org)
@@ -148,7 +146,6 @@ def seed_demo_command() -> None:
                 role="supplier",
                 org_id=org.id,
                 password_hash=hash_password(pw),
-                email_verified_at=datetime.utcnow(),
             )
             db.session.add(user)
             passwords[email] = pw

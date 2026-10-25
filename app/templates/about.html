@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set layout = 'public' %}
+{% block title %}Tentang — FoodLoop ID{% endblock %}
+{% block content %}
+<section class="py-8">
+  <div class="mx-auto max-w-4xl">
+    <span class="chip">Tentang FoodLoop ID</span>
+    <h1 class="mt-5 text-4xl font-bold leading-tight sm:text-5xl">Pangan berlebih, dikelola lebih terukur</h1>
+    <p class="mt-4 max-w-3xl text-base leading-relaxed text-ink-muted sm:text-lg">
+      FoodLoop ID hadir untuk menjawab persoalan pangan surplus yang masih sering terbuang. Melalui platform ini, supplier mencatat pasokan pangan surplus, admin meninjau setiap pasokan, dan dampak dihitung dari pasokan yang telah disetujui.
+    </p>
+    <p class="mt-4 max-w-3xl text-base leading-relaxed text-ink-muted sm:text-lg">
+      Setiap pasokan diverifikasi sebelum dihitung, sehingga upaya pencegahan pemborosan pangan dapat diukur secara objektif dan dapat diaudit.
+    </p>
+  </div>
+</section>
+
+<section class="py-10">
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 class="text-2xl font-bold sm:text-3xl">Langkah kerja</h2>
+    <p class="mt-2 text-sm text-ink-muted sm:text-base">Alur sederhana dari pencatatan hingga dampak terukur.</p>
+  </div>
+  <div class="mt-8 grid gap-5 md:grid-cols-3">
+    <article class="rounded-card tone-1 p-6 shadow-card">
+      <span class="grid h-10 w-10 place-items-center rounded-full bg-primary-soft text-sm font-bold text-primary-700">1</span>
+      <h3 class="mt-4 text-base font-semibold text-ink">Supplier mencatat</h3>
+      <p class="mt-1.5 text-sm leading-relaxed text-ink-muted">Supplier mencatat stok dan mengirim pasokan pangan surplus untuk ditinjau.</p>
+    </article>
+    <article class="rounded-card tone-1 p-6 shadow-card">
+      <span class="grid h-10 w-10 place-items-center rounded-full bg-primary-soft text-sm font-bold text-primary-700">2</span>
+      <h3 class="mt-4 text-base font-semibold text-ink">Admin meninjau</h3>
+      <p class="mt-1.5 text-sm leading-relaxed text-ink-muted">Setiap pasokan ditinjau dan diverifikasi oleh admin sebelum disetujui.</p>
+    </article>
+    <article class="rounded-card tone-1 p-6 shadow-card">
+      <span class="grid h-10 w-10 place-items-center rounded-full bg-primary-soft text-sm font-bold text-primary-700">3</span>
+      <h3 class="mt-4 text-base font-semibold text-ink">Dampak terukur</h3>
+      <p class="mt-1.5 text-sm leading-relaxed text-ink-muted">Dampak dihitung dari pasokan approved, mencakup jumlah pangan yang terselamatkan dan indikator terkait.</p>
+    </article>
+  </div>
+</section>
+
+<section class="py-10">
+  <div class="mx-auto max-w-3xl">
+    <p class="text-base leading-relaxed text-ink-muted">
+      Inisiatif ini relevan dengan sub tema Food Waste &amp; Supply Chain, karena menargetkan titik pencegahan pemborosan melalui pencatatan, verifikasi, dan pengukuran dampak yang terintegrasi dalam rantai pasok pangan.
+    </p>
+    <div class="mt-7 flex flex-wrap gap-3">
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Daftar sebagai Supplier</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Masuk</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

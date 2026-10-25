@@ -39,3 +39,8 @@ def test_logout_only_post(client: Any, app: Any) -> None:
     """GET to /logout is not allowed (405)."""
     resp = client.get("/logout")
     assert resp.status_code == 405
+
+
+def test_tentang_public_ok(client: Any) -> None:
+    resp = client.get("/tentang")
+    assert resp.status_code == 200
